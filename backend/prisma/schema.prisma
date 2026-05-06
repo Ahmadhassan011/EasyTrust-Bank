@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Bank {
+  bank_id        Int      @id @default(autoincrement())
+  bank_name      String
+  swift_code     String   @unique @db.VarChar(11)
+  country        String
+  headquarters   String
+  created_at     DateTime @default(now())
+  branches       Branch[]
+
+  @@map("bank")
+}
+
+model RaastNetwork {
+  raast_id         Int      @id @default(autoincrement())
+  network_name     String
+  api_endpoint     String
+  auth_token_hash  String
+  is_active        Boolean  @default(true)
+  transfers        InterbankTransfer[]
+  @@map("raast_network")
+}
+
+model Customer {
+  customer_id  Int       @id @default(autoincrement())
+  first_name   String
+  last_name    String
+  cnic         String    @unique @db.VarChar(15)
+  email        String    @unique
+  phone        String?
+  address      String?
+  dob          DateTime? @db.Date
+  kyc_status   String    @default("PENDING")
+  created_at   DateTime  @default(now())
+  accounts     Account[]
+  loans        Loan[]
+
+  @@map("customer")
+}
+
+model Branch {
+  branch_id    Int      @id @default(autoincrement())
+  bank_id      Int
+  branch_name  String
+  address      String
+  city         String
+  phone        String?
+  is_active    Boolean  @default(true)
+  bank         Bank     @relation(fields: [bank_id], references: [bank_id])
+  employees    Employee[]
+  accounts     Account[]
+  loans        Loan[]
+
+  @@map("branch")
+}
+
+model Employee {
+  employee_id  Int       @id @default(autoincrement())
+  branch_id    Int
+  first_name   String
+  last_name    String
+  role         String
+  email        String    @unique
+  hire_date    DateTime  @db.Date
+  is_active    Boolean   @default(true)
+  branch       Branch    @relation(fields: [branch_id], references: [branch_id])
+  approvedLoans Loan[]
+  auditLogs    AuditLog[]
+
+  @@map("employee")
+}
+
+model Account {
+  account_id    Int       @id @default(autoincrement())
+  customer_id   Int
+  branch_id     Int
+  account_number String   @unique
+  account_type  String
+  balance       Decimal   @default(0.00) @db.Decimal(15, 2)
+  currency      String    @default("PKR") @db.VarChar(3)
+  status        String    @default("ACTIVE")
+  opened_at     DateTime  @default(now())
+  customer      Customer  @relation(fields: [customer_id], references: [customer_id])
+  branch        Branch    @relation(fields: [branch_id], references: [branch_id])
+  cards         Card[]
+  sentTransactions      Transaction[] @relation("FromAccount")
+  receivedTransactions  Transaction[] @relation("ToAccount")
+
+  @@index([customer_id])
+  @@index([branch_id])
+  @@index([account_number])
+  @@map("account")
+}
+
+model Card {
+  card_id      Int       @id @default(autoincrement())
+  account_id   Int
+  card_number  String    @unique @db.VarChar(16)
+  card_type    String
+  expiry_date  DateTime  @db.Date
+  cvv_hash     String
+  daily_limit  Decimal   @default(50000.00) @db.Decimal(10, 2)
+  status       String    @default("ACTIVE")
+  account      Account   @relation(fields: [account_id], references: [account_id])
+
+  @@index([account_id])
+  @@index([status])
+  @@map("card")
+}
+
+model Loan {
+  loan_id          Int       @id @default(autoincrement())
+  customer_id      Int
+  branch_id        Int
+  approved_by      Int?
+  principal_amount Decimal   @db.Decimal(15, 2)
+  interest_rate    Decimal   @db.Decimal(5, 2)
+  tenure_months    Int
+  loan_type        String
+  status           String    @default("PENDING")
+  disbursement_date DateTime? @db.Date
+  maturity_date     DateTime? @db.Date
+  customer         Customer  @relation(fields: [customer_id], references: [customer_id])
+  branch           Branch    @relation(fields: [branch_id], references: [branch_id])
+  approvedBy       Employee? @relation(fields: [approved_by], references: [employee_id])
+  repayments       LoanRepayment[]
+
+  @@index([customer_id])
+  @@index([branch_id])
+  @@index([status])
+  @@map("loan")
+}
+
+model Transaction {
+  transaction_id    Int       @id @default(autoincrement())
+  from_account_id   Int?
+  to_account_id     Int?
+  amount            Decimal   @db.Decimal(15, 2)
+  currency          String    @default("PKR") @db.VarChar(3)
+  type              String
+  status            String    @default("COMPLETED")
+  description       String?
+  created_at        DateTime  @default(now())
+  fromAccount       Account?  @relation("FromAccount", fields: [from_account_id], references: [account_id])
+  toAccount         Account?  @relation("ToAccount", fields: [to_account_id], references: [account_id])
+  interbankTransfer InterbankTransfer?
+  loanRepayment     LoanRepayment?
+
+  @@index([from_account_id])
+  @@index([to_account_id])
+  @@index([created_at])
+  @@map("transaction")
+}
+
+model InterbankTransfer {
+  transfer_id        Int       @id @default(autoincrement())
+  transaction_id     Int       @unique
+  raast_network_id   Int
+  sender_bank_swift  String    @db.VarChar(11)
+  receiver_bank_swift String   @db.VarChar(11)
+  raast_reference    String?   @unique
+  settlement_status  String    @default("PENDING")
+  initiated_at       DateTime  @default(now())
+  settled_at         DateTime?
+  transaction        Transaction  @relation(fields: [transaction_id], references: [transaction_id])
+  raastNetwork       RaastNetwork @relation(fields: [raast_network_id], references: [raast_id])
+
+  @@map("interbank_transfer")
+}
+
+model LoanRepayment {
+  repayment_id        Int       @id @default(autoincrement())
+  loan_id             Int
+  transaction_id      Int?      @unique
+  amount_paid         Decimal   @db.Decimal(15, 2)
+  principal_component Decimal   @db.Decimal(15, 2)
+  interest_component  Decimal   @db.Decimal(15, 2)
+  remaining_balance   Decimal   @db.Decimal(15, 2)
+  due_date            DateTime  @db.Date
+  paid_date           DateTime? @db.Date
+  status              String    @default("PENDING")
+  loan                Loan        @relation(fields: [loan_id], references: [loan_id])
+  transaction         Transaction? @relation(fields: [transaction_id], references: [transaction_id])
+
+  @@index([loan_id])
+  @@index([due_date])
+  @@map("loan_repayment")
+}
+
+model AuditLog {
+  log_id      Int       @id @default(autoincrement())
+  employee_id Int?
+  entity_type String
+  entity_id   Int
+  action      String
+  old_value   String?
+  new_value   String?
+  logged_at   DateTime  @default(now())
+  ip_address  String?   @db.VarChar(45)
+  employee    Employee? @relation(fields: [employee_id], references: [employee_id])
+
+  @@index([employee_id])
+  @@index([entity_type, entity_id])
+  @@map("audit_log")
+}
