@@ -30,10 +30,12 @@ app.use(express.urlencoded({ extended: true }));
 const customerRoutes = require('./modules/customer/customer.routes');
 const accountRoutes = require('./modules/account/account.routes');
 const transactionRoutes = require('./modules/transaction/transaction.routes');
+const loanRoutes = require('./modules/loan/loan.routes');
 
 app.use('/api/v1/customers', customerRoutes);
 app.use('/api/v1/accounts', accountRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
+app.use('/api/v1/loans', loanRoutes);
 // Health check
 app.get('/health', (req: Request, res: Response) => {
   res.json({
