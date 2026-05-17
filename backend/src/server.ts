@@ -26,18 +26,14 @@ app.use(limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes (CommonJS style imports)
+// Routes
 const customerRoutes = require('./modules/customer/customer.routes');
-// const authRoutes = require('./modules/auth/auth.routes');
-// const accountRoutes = require('./modules/account/account.routes');
-// const transactionRoutes = require('./modules/transaction/transaction.routes');
+const accountRoutes = require('./modules/account/account.routes');
+const transactionRoutes = require('./modules/transaction/transaction.routes');
 
-// Register routes
 app.use('/api/v1/customers', customerRoutes);
-// app.use('/api/v1/auth', authRoutes);
-// app.use('/api/v1/accounts', accountRoutes);
-// app.use('/api/v1/transactions', transactionRoutes);
-
+app.use('/api/v1/accounts', accountRoutes);
+app.use('/api/v1/transactions', transactionRoutes);
 // Health check
 app.get('/health', (req: Request, res: Response) => {
   res.json({
