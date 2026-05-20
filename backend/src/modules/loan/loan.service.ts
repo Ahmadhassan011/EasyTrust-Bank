@@ -30,12 +30,13 @@ const approveLoan = async (loanId: number, employeeId: number) => {
   });
 };
 
-const rejectLoan = async (loanId: number, employeeId: number) => {
+const rejectLoan = async (loanId: number, employeeId: number, reason?: string) => {
   return await prisma.loan.update({
     where: { loan_id: loanId },
     data: {
       status: 'REJECTED',
-      approved_by: employeeId
+      approved_by: employeeId,
+      rejection_reason: reason ?? null
     }
   });
 };

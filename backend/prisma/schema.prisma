@@ -128,6 +128,7 @@ model Loan {
   tenure_months    Int
   loan_type        String
   status           String    @default("PENDING")
+  rejection_reason  String?
   disbursement_date DateTime? @db.Date
   maturity_date     DateTime? @db.Date
   customer         Customer  @relation(fields: [customer_id], references: [customer_id])

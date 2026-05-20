@@ -13,6 +13,11 @@ const approveLoanSchema = z.object({
   employeeId: z.number().positive(),
 });
 
+const rejectLoanSchema = z.object({
+  employeeId: z.number().positive(),
+  reason: z.string().optional(),
+});
+
 const repayLoanSchema = z.object({
   fromAccountId: z.number().positive(),
   amount: z.number().positive(),

@@ -75,6 +75,7 @@ const login = async (identifier: string, password: string) => {
   });
 
   if (employee) {
+    if (!employee.is_active) throw new Error("Employee account is inactive");
     if (!employee.password_hash) throw new Error("No password set for this employee");
     const valid = await bcrypt.compare(password, employee.password_hash);
     if (!valid) throw new Error("Invalid credentials");

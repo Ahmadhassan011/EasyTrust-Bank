@@ -31,7 +31,18 @@ const executeTransfer = async (
     await tx.$executeRaw`SELECT balance FROM account WHERE account_id = ${toAccountId} FOR UPDATE`;
 
     const sender = await tx.account.findUnique({ where: { account_id: fromAccountId } });
-    if (!sender || sender.balance.toNumber() < amount) {
+    const receiver = await tx.account.findUnique({ where: { account_id: toAccountId } });
+
+    if (!sender || !receiver) {
+      throw new Error("Account not found");
+    }
+    if (sender.status !== "ACTIVE") {
+      throw new Error("Sender account is not active");
+    }
+    if (receiver.status !== "ACTIVE") {
+      throw new Error("Receiver account is not active");
+    }
+    if (sender.balance.toNumber() < amount) {
       throw new Error("Insufficient funds");
     }
 

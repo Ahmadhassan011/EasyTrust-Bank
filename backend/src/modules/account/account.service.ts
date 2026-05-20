@@ -1,8 +1,14 @@
 const prisma = require("../../config/prisma");
 
 const createAccount = async (data: any) => {
-  // Generate a unique account number if not provided
-  // Pattern: ETB (EasyTrust Bank) + Branch ID + Random 8 digits
+  const customer = await prisma.customer.findUnique({ where: { customer_id: data.customer_id } });
+  if (!customer) {
+    throw new Error("Customer not found");
+  }
+  if (customer.kyc_status !== "VERIFIED") {
+    throw new Error("KYC must be VERIFIED before opening an account");
+  }
+
   if (!data.account_number) {
     const randomSuffix = Math.floor(10000000 + Math.random() * 90000000).toString();
     data.account_number = `ETB${data.branch_id}${randomSuffix}`;

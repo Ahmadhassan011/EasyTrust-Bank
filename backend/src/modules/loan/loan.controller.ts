@@ -22,8 +22,8 @@ const approve = async (req: Request, res: Response) => {
 
 const reject = async (req: Request, res: Response) => {
   try {
-    const { employeeId } = req.body;
-    const loan = await loanService.rejectLoan(Number(req.params.id), Number(employeeId));
+    const { employeeId, reason } = req.body;
+    const loan = await loanService.rejectLoan(Number(req.params.id), Number(employeeId), reason);
     res.json({ success: true, data: loan });
   } catch (error: any) {
     res.status(400).json({ success: false, error: { code: "REJECTION_FAILED", message: error.message } });
