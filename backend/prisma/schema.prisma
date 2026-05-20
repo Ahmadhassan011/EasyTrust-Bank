@@ -39,6 +39,7 @@ model Customer {
   address      String?
   dob          DateTime? @db.Date
   kyc_status   String    @default("PENDING")
+  password_hash String
   created_at   DateTime  @default(now())
   accounts     Account[]
   loans        Loan[]
@@ -70,6 +71,7 @@ model Employee {
   role         String
   email        String    @unique
   hire_date    DateTime  @db.Date
+  password_hash String?
   is_active    Boolean   @default(true)
   branch       Branch    @relation(fields: [branch_id], references: [branch_id])
   approvedLoans Loan[]

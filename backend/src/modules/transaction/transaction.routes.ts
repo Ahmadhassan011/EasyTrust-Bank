@@ -1,11 +1,12 @@
 const { Router } = require("express");
+const { authorize } = require("../../middleware/auth");
 const transactionController = require("./transaction.controller");
 
 const router = Router();
 
-router.post("/transfer", transactionController.transfer);
-router.post("/deposit", transactionController.deposit);
-router.post("/withdraw", transactionController.withdraw);
-router.get("/history/:accountId", transactionController.history);
+router.post("/transfer", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), transactionController.transfer);
+router.post("/deposit", authorize("TELLER", "MANAGER", "ADMIN"), transactionController.deposit);
+router.post("/withdraw", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), transactionController.withdraw);
+router.get("/history/:accountId", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), transactionController.history);
 
 module.exports = router;
