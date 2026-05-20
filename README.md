@@ -1,6 +1,6 @@
 # EasyTrust Bank - Online Banking System
 
-An online banking system with loan management capabilities, implementing distributed transaction processing with Two-Phase Commit (2PC) protocol.
+A secure, multi-branch online banking platform for managing customer accounts, processing transactions, and handling loan lifecycles with balance updates and audit trails.
 
 ## Features
 
@@ -8,7 +8,7 @@ An online banking system with loan management capabilities, implementing distrib
 - **Transaction Processing**: Internal transfers, deposits, withdrawals
 - **Loan Management**: Applications, amortization, repayments
 - **Interbank Transfers**: Raast network integration for cross-bank transfers
-- **Distributed Transactions**: Two-Phase Commit (2PC) protocol for atomicity
+- **Distributed Transactions**: Atomic fund transfers with ACID guarantees
 - **Audit Trail**: Immutable audit logs for regulatory compliance
 - **Multi-Branch Support**: Manage multiple bank branches with hierarchical structure
 
@@ -16,7 +16,7 @@ An online banking system with loan management capabilities, implementing distrib
 
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: PostgreSQL with Prisma ORM
-- **Caching/Coordination**: Redis (for distributed locking)
+- **Caching/Coordination**: Redis
 - **Authentication**: JWT with MFA support
 
 ## Prerequisites

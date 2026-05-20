@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-
-//  1. Delete the mock object and require your real service file here:
-const customerService = require("./customer.service"); 
+const customerService = require("./customer.service");
+const accountService = require("../account/account.service");
+const loanService = require("../loan/loan.service");
 
 const create = async (req: Request, res: Response) => {
   try {
@@ -14,7 +14,6 @@ const create = async (req: Request, res: Response) => {
 
 const getAll = async (_req: Request, res: Response) => {
   try {
-    // 2. This will now successfully invoke Prisma inside your service file!
     const customers = await customerService.getAllCustomers();
     res.json(customers);
   } catch (error) {
@@ -55,5 +54,22 @@ const remove = async (req: Request, res: Response) => {
   }
 };
 
-// Use CommonJS export to avoid ESM/CommonJS mismatch when verbatimModuleSyntax is enabled
-module.exports = { create, getAll, getById, update, remove };
+const getAccounts = async (req: Request, res: Response) => {
+  try {
+    const accounts = await accountService.getAccountsByCustomerId(Number(req.params.id));
+    res.json(accounts);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch customer accounts" });
+  }
+};
+
+const getLoans = async (req: Request, res: Response) => {
+  try {
+    const loans = await loanService.getLoansByCustomer(Number(req.params.id));
+    res.json(loans);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch customer loans" });
+  }
+};
+
+module.exports = { create, getAll, getById, update, remove, getAccounts, getLoans };

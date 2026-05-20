@@ -20,5 +20,6 @@ temp/
 *.tmp
 
 # Misc
+/misc/
 *.tgz
 *.tar.gz

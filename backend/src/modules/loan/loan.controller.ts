@@ -20,6 +20,30 @@ const approve = async (req: Request, res: Response) => {
   }
 };
 
+const reject = async (req: Request, res: Response) => {
+  try {
+    const { employeeId } = req.body;
+    const loan = await loanService.rejectLoan(Number(req.params.id), Number(employeeId));
+    res.json(loan);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const repay = async (req: Request, res: Response) => {
+  try {
+    const { fromAccountId, amount } = req.body;
+    const repayment = await loanService.makeRepayment(
+      Number(req.params.id),
+      Number(fromAccountId),
+      Number(amount)
+    );
+    res.status(201).json(repayment);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 const getHistory = async (req: Request, res: Response) => {
   try {
     const loans = await loanService.getLoansByCustomer(Number(req.params.customerId));
@@ -29,4 +53,4 @@ const getHistory = async (req: Request, res: Response) => {
   }
 };
 
-module.exports = { apply, approve, getHistory };
+module.exports = { apply, approve, reject, repay, getHistory };

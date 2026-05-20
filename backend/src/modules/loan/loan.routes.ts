@@ -5,6 +5,8 @@ const router = Router();
 
 router.post("/apply", loanController.apply);
 router.patch("/:id/approve", loanController.approve);
+router.patch("/:id/reject", loanController.reject);
+router.post("/:id/repay", loanController.repay);
 router.get("/customer/:customerId", loanController.getHistory);
 
 module.exports = router;

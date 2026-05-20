@@ -40,6 +40,18 @@ const getByCustomer = async (req: Request, res: Response) => {
   }
 };
 
+const getBalance = async (req: Request, res: Response) => {
+  try {
+    const account = await accountService.getAccountById(Number(req.params.id));
+    if (!account) {
+      return res.status(404).json({ error: "Account not found" });
+    }
+    res.json({ account_id: account.account_id, balance: account.balance });
+  } catch (error: any) {
+    res.status(500).json({ error: "Failed to fetch balance", details: error.message });
+  }
+};
+
 const updateStatus = async (req: Request, res: Response) => {
   try {
     const account = await accountService.updateAccountStatus(
@@ -52,4 +64,4 @@ const updateStatus = async (req: Request, res: Response) => {
   }
 };
 
-module.exports = { create, getAll, getById, getByCustomer, updateStatus };
+module.exports = { create, getAll, getById, getByCustomer, getBalance, updateStatus };

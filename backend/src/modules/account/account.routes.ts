@@ -7,6 +7,7 @@ router.post("/", accountController.create);
 router.get("/", accountController.getAll);
 router.get("/:id", accountController.getById);
 router.get("/customer/:customerId", accountController.getByCustomer);
+router.get("/:id/balance", accountController.getBalance);
 router.patch("/:id/status", accountController.updateStatus);
 
 module.exports = router;
