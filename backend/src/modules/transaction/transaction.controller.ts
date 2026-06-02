@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 const transactionService = require("./transaction.service");
+const auditService = require("../audit/audit.service");
 
 const transfer = async (req: Request, res: Response) => {
   try {
@@ -8,6 +9,14 @@ const transfer = async (req: Request, res: Response) => {
     const transaction = await transactionService.executeTransfer(
       Number(fromAccountId), Number(toAccountId), Number(amount), description, idempotencyKey
     );
+    await auditService.log({
+      employeeId: req.user?.type === "employee" ? req.user.userId : null,
+      entityType: "transaction",
+      entityId: transaction.transaction_id,
+      action: "TRANSFER",
+      newValue: JSON.stringify(transaction),
+      ipAddress: req.ip,
+    });
     res.status(201).json({ success: true, data: transaction });
   } catch (error: any) {
     res.status(400).json({ success: false, error: { code: "TRANSFER_FAILED", message: error.message } });
@@ -21,6 +30,14 @@ const deposit = async (req: Request, res: Response) => {
     const transaction = await transactionService.executeDeposit(
       Number(toAccountId), Number(amount), description, idempotencyKey
     );
+    await auditService.log({
+      employeeId: req.user?.type === "employee" ? req.user.userId : null,
+      entityType: "transaction",
+      entityId: transaction.transaction_id,
+      action: "DEPOSIT",
+      newValue: JSON.stringify(transaction),
+      ipAddress: req.ip,
+    });
     res.status(201).json({ success: true, data: transaction });
   } catch (error: any) {
     res.status(400).json({ success: false, error: { code: "DEPOSIT_FAILED", message: error.message } });
@@ -34,6 +51,14 @@ const withdraw = async (req: Request, res: Response) => {
     const transaction = await transactionService.executeWithdrawal(
       Number(fromAccountId), Number(amount), description, idempotencyKey
     );
+    await auditService.log({
+      employeeId: req.user?.type === "employee" ? req.user.userId : null,
+      entityType: "transaction",
+      entityId: transaction.transaction_id,
+      action: "WITHDRAWAL",
+      newValue: JSON.stringify(transaction),
+      ipAddress: req.ip,
+    });
     res.status(201).json({ success: true, data: transaction });
   } catch (error: any) {
     res.status(400).json({ success: false, error: { code: "WITHDRAWAL_FAILED", message: error.message } });
