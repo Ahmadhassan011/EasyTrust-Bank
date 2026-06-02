@@ -72,6 +72,8 @@ model Employee {
   email        String    @unique
   hire_date    DateTime  @db.Date
   password_hash String?
+  totp_secret  String?
+  mfa_enabled  Boolean   @default(false)
   is_active    Boolean   @default(true)
   branch       Branch    @relation(fields: [branch_id], references: [branch_id])
   approvedLoans Loan[]

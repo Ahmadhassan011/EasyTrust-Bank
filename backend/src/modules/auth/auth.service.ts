@@ -2,9 +2,11 @@ import type { Prisma } from "@prisma/client";
 const prisma = require("../../config/prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { authenticator } = require("otplib");
 
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";
+const MFA_TOKEN_EXPIRY = "2m";
 
 const getJwtSecret = (): string => {
   return process.env.JWT_SECRET || "fallback-secret-do-not-use-in-production";
@@ -16,6 +18,10 @@ const generateAccessToken = (payload: { userId: number; role: string; type: stri
 
 const generateRefreshToken = (payload: { userId: number; role: string; type: string }) => {
   return jwt.sign(payload, getJwtSecret(), { expiresIn: REFRESH_TOKEN_EXPIRY });
+};
+
+const generateMfaToken = (payload: { userId: number }) => {
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: MFA_TOKEN_EXPIRY });
 };
 
 const verifyToken = (token: string) => {
@@ -80,14 +86,73 @@ const login = async (identifier: string, password: string) => {
     const valid = await bcrypt.compare(password, employee.password_hash);
     if (!valid) throw new Error("Invalid credentials");
 
+    if (employee.mfa_enabled) {
+      const mfaToken = generateMfaToken({ userId: employee.employee_id });
+      return { mfaRequired: true, mfaToken };
+    }
+
     const accessToken = generateAccessToken({ userId: employee.employee_id, role: employee.role, type: "employee" });
     const refreshToken = generateRefreshToken({ userId: employee.employee_id, role: employee.role, type: "employee" });
 
-    const { password_hash: _, ...safeEmployee } = employee;
+    const { password_hash: _, totp_secret: _s, ...safeEmployee } = employee;
     return { user: safeEmployee, role: employee.role, accessToken, refreshToken };
   }
 
   throw new Error("User not found");
+};
+
+const loginWithMfa = async (mfaToken: string, totpCode: string) => {
+  const decoded = jwt.verify(mfaToken, getJwtSecret()) as { userId: number };
+  const employee = await prisma.employee.findUnique({ where: { employee_id: decoded.userId } });
+  if (!employee) throw new Error("Employee not found");
+  if (!employee.totp_secret) throw new Error("MFA not configured");
+
+  const valid = authenticator.verify({ token: totpCode, secret: employee.totp_secret });
+  if (!valid) throw new Error("Invalid MFA code");
+
+  const accessToken = generateAccessToken({ userId: employee.employee_id, role: employee.role, type: "employee" });
+  const refreshToken = generateRefreshToken({ userId: employee.employee_id, role: employee.role, type: "employee" });
+
+  const { password_hash: _, totp_secret: _s, ...safeEmployee } = employee;
+  return { user: safeEmployee, role: employee.role, accessToken, refreshToken };
+};
+
+const setupMfa = async (employeeId: number) => {
+  const employee = await prisma.employee.findUnique({ where: { employee_id: employeeId } });
+  if (!employee) throw new Error("Employee not found");
+
+  const secret = authenticator.generateSecret();
+  const uri = authenticator.keyuri(employee.email, "EasyTrust Bank", secret);
+
+  return { secret, uri };
+};
+
+const enableMfa = async (employeeId: number, secret: string, totpCode: string) => {
+  const valid = authenticator.verify({ token: totpCode, secret });
+  if (!valid) throw new Error("Invalid MFA code");
+
+  await prisma.employee.update({
+    where: { employee_id: employeeId },
+    data: { totp_secret: secret, mfa_enabled: true },
+  });
+
+  return { message: "MFA enabled" };
+};
+
+const disableMfa = async (employeeId: number, totpCode: string) => {
+  const employee = await prisma.employee.findUnique({ where: { employee_id: employeeId } });
+  if (!employee) throw new Error("Employee not found");
+  if (!employee.totp_secret) throw new Error("MFA not configured");
+
+  const valid = authenticator.verify({ token: totpCode, secret: employee.totp_secret });
+  if (!valid) throw new Error("Invalid MFA code");
+
+  await prisma.employee.update({
+    where: { employee_id: employeeId },
+    data: { totp_secret: null, mfa_enabled: false },
+  });
+
+  return { message: "MFA disabled" };
 };
 
 const refreshAccessToken = (refreshToken: string) => {
@@ -96,4 +161,13 @@ const refreshAccessToken = (refreshToken: string) => {
   return { accessToken };
 };
 
-module.exports = { registerCustomer, login, refreshAccessToken, verifyToken };
+module.exports = {
+  registerCustomer,
+  login,
+  loginWithMfa,
+  setupMfa,
+  enableMfa,
+  disableMfa,
+  refreshAccessToken,
+  verifyToken,
+};
