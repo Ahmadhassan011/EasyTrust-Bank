@@ -39,6 +39,9 @@ CREATE TABLE IF NOT EXISTS customer (
     address TEXT,
     dob DATE,
     kyc_status VARCHAR(50) DEFAULT 'PENDING',
+    password_hash VARCHAR(255),
+    mfa_secret VARCHAR(255),
+    mfa_enabled BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -68,6 +71,9 @@ CREATE TABLE IF NOT EXISTS employee (
     email VARCHAR(255) NOT NULL UNIQUE,
     hire_date DATE NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
+    password_hash VARCHAR(255),
+    mfa_secret VARCHAR(255),
+    mfa_enabled BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
