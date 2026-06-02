@@ -39,9 +39,6 @@ model Customer {
   address      String?
   dob          DateTime? @db.Date
   kyc_status   String    @default("PENDING")
-  password_hash String?
-  mfa_secret    String?
-  mfa_enabled   Boolean   @default(false)
   created_at   DateTime  @default(now())
   accounts     Account[]
   loans        Loan[]
@@ -74,9 +71,6 @@ model Employee {
   email        String    @unique
   hire_date    DateTime  @db.Date
   is_active    Boolean   @default(true)
-  password_hash String?
-  mfa_secret    String?
-  mfa_enabled   Boolean   @default(false)
   branch       Branch    @relation(fields: [branch_id], references: [branch_id])
   approvedLoans Loan[]
   auditLogs    AuditLog[]
@@ -216,4 +210,16 @@ model AuditLog {
   @@index([employee_id])
   @@index([entity_type, entity_id])
   @@map("audit_log")
+}
+
+model Credential {
+  credential_id Int      @id @default(autoincrement())
+  email         String   @unique
+  password_hash String
+  mfa_secret    String
+  mfa_enabled   Boolean  @default(false)
+  role          String
+  created_at    DateTime @default(now())
+
+  @@map("credential")
 }

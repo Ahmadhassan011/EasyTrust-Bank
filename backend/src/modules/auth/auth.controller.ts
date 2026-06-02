@@ -6,11 +6,9 @@ const register = async (req: Request, res: Response) => {
   try {
     const { role, email, password, first_name, last_name } = req.body;
 
-    // Check if email already exists in either table
-    const existingCustomer = await prisma.customer.findUnique({ where: { email } });
-    const existingEmployee = await prisma.employee.findUnique({ where: { email } });
-
-    if (existingCustomer || existingEmployee) {
+    // Check if email already exists in the decoupled Credential table
+    const existingCred = await prisma.credential.findUnique({ where: { email } });
+    if (existingCred) {
       return res.status(400).json({
         success: false,
         error: { code: "EMAIL_TAKEN", message: "Email is already registered" }
@@ -20,12 +18,12 @@ const register = async (req: Request, res: Response) => {
     const hashedPassword = await authService.hashPassword(password);
     const mfaSecret = authService.generateTOTPSecret();
 
-    let createdUser;
+    let createdProfile;
 
     if (role === "customer") {
       const { cnic, phone, address, dob } = req.body;
       
-      // Check cnic unique
+      // Check cnic unique in customer profiles
       const existingCnic = await prisma.customer.findUnique({ where: { cnic } });
       if (existingCnic) {
         return res.status(400).json({
@@ -34,7 +32,8 @@ const register = async (req: Request, res: Response) => {
         });
       }
 
-      createdUser = await prisma.customer.create({
+      // Create Customer profile without auth columns
+      createdProfile = await prisma.customer.create({
         data: {
           first_name,
           last_name,
@@ -42,10 +41,7 @@ const register = async (req: Request, res: Response) => {
           email,
           phone,
           address,
-          dob: dob ? new Date(dob) : null,
-          password_hash: hashedPassword,
-          mfa_secret: mfaSecret,
-          mfa_enabled: false // Setup complete, but needs verification to enable
+          dob: dob ? new Date(dob) : null
         }
       });
     } else {
@@ -60,31 +56,42 @@ const register = async (req: Request, res: Response) => {
         });
       }
 
-      createdUser = await prisma.employee.create({
+      // Create Employee profile without auth columns
+      createdProfile = await prisma.employee.create({
         data: {
           branch_id,
           first_name,
           last_name,
           role: employee_role,
           email,
-          hire_date: new Date(hire_date),
-          password_hash: hashedPassword,
-          mfa_secret: mfaSecret,
-          mfa_enabled: false
+          hire_date: new Date(hire_date)
         }
       });
     }
 
+    // Create secure decoupled Credential record
+    await prisma.credential.create({
+      data: {
+        email,
+        password_hash: hashedPassword,
+        mfa_secret: mfaSecret,
+        mfa_enabled: false,
+        role
+      }
+    });
+
+    const userId = role === "customer" ? createdProfile.customer_id : createdProfile.employee_id;
+
     res.status(201).json({
       success: true,
       data: {
-        id: role === "customer" ? createdUser.customer_id : createdUser.employee_id,
-        email: createdUser.email,
+        id: userId,
+        email,
         role,
-        first_name: createdUser.first_name,
-        last_name: createdUser.last_name,
+        first_name: createdProfile.first_name,
+        last_name: createdProfile.last_name,
         mfa_secret: mfaSecret,
-        mfa_setup_url: `otpauth://totp/EasyTrustBank:${createdUser.email}?secret=${mfaSecret}&issuer=EasyTrustBank`
+        mfa_setup_url: `otpauth://totp/EasyTrustBank:${email}?secret=${mfaSecret}&issuer=EasyTrustBank`
       }
     });
   } catch (error: any) {
@@ -97,23 +104,16 @@ const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    // Search customer first
-    let user = await prisma.customer.findUnique({ where: { email } });
-    let role: "customer" | "employee" = "customer";
-
-    if (!user) {
-      user = await prisma.employee.findUnique({ where: { email } });
-      role = "employee";
-    }
-
-    if (!user || !user.password_hash) {
+    // Check credentials first
+    const cred = await prisma.credential.findUnique({ where: { email } });
+    if (!cred) {
       return res.status(401).json({
         success: false,
         error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password" }
       });
     }
 
-    const passwordMatch = await authService.comparePassword(password, user.password_hash);
+    const passwordMatch = await authService.comparePassword(password, cred.password_hash);
     if (!passwordMatch) {
       return res.status(401).json({
         success: false,
@@ -121,24 +121,39 @@ const login = async (req: Request, res: Response) => {
       });
     }
 
-    const userId = role === "customer" ? user.customer_id : user.employee_id;
+    // Retrieve corresponding user profile details
+    let userProfile;
+    if (cred.role === "customer") {
+      userProfile = await prisma.customer.findUnique({ where: { email } });
+    } else {
+      userProfile = await prisma.employee.findUnique({ where: { email } });
+    }
 
-    if (user.mfa_enabled) {
+    if (!userProfile) {
+      return res.status(404).json({
+        success: false,
+        error: { code: "PROFILE_NOT_FOUND", message: "User profile could not be resolved" }
+      });
+    }
+
+    const userId = cred.role === "customer" ? userProfile.customer_id : userProfile.employee_id;
+
+    if (cred.mfa_enabled) {
       return res.json({
         success: true,
         data: {
           mfa_required: true,
-          email: user.email,
+          email,
           message: "Please enter your 6-digit authenticator code"
         }
       });
     }
 
-    // Default response: Return final token since MFA isn't verified/enabled yet
+    // Default response: Return final token
     const token = authService.generateToken({
       id: userId,
-      email: user.email,
-      role
+      email,
+      role: cred.role
     });
 
     res.json({
@@ -147,10 +162,10 @@ const login = async (req: Request, res: Response) => {
         token,
         user: {
           id: userId,
-          email: user.email,
-          role,
-          first_name: user.first_name,
-          last_name: user.last_name
+          email,
+          role: cred.role,
+          first_name: userProfile.first_name,
+          last_name: userProfile.last_name
         }
       }
     });
@@ -164,22 +179,15 @@ const verifyMfa = async (req: Request, res: Response) => {
   try {
     const { email, code } = req.body;
 
-    let user = await prisma.customer.findUnique({ where: { email } });
-    let role: "customer" | "employee" = "customer";
-
-    if (!user) {
-      user = await prisma.employee.findUnique({ where: { email } });
-      role = "employee";
-    }
-
-    if (!user || !user.mfa_secret) {
+    const cred = await prisma.credential.findUnique({ where: { email } });
+    if (!cred) {
       return res.status(404).json({
         success: false,
-        error: { code: "USER_NOT_FOUND", message: "User not found or MFA not configured" }
+        error: { code: "USER_NOT_FOUND", message: "User credentials not found" }
       });
     }
 
-    const isValid = authService.verifyTOTPToken(code, user.mfa_secret);
+    const isValid = authService.verifyTOTPToken(code, cred.mfa_secret);
     if (!isValid) {
       return res.status(400).json({
         success: false,
@@ -187,26 +195,34 @@ const verifyMfa = async (req: Request, res: Response) => {
       });
     }
 
-    // Enable MFA if it was not enabled before
-    if (!user.mfa_enabled) {
-      if (role === "customer") {
-        await prisma.customer.update({
-          where: { email },
-          data: { mfa_enabled: true }
-        });
-      } else {
-        await prisma.employee.update({
-          where: { email },
-          data: { mfa_enabled: true }
-        });
-      }
+    // Enable MFA if it wasn't enabled before
+    if (!cred.mfa_enabled) {
+      await prisma.credential.update({
+        where: { email },
+        data: { mfa_enabled: true }
+      });
     }
 
-    const userId = role === "customer" ? user.customer_id : user.employee_id;
+    // Retrieve corresponding user profile details
+    let userProfile;
+    if (cred.role === "customer") {
+      userProfile = await prisma.customer.findUnique({ where: { email } });
+    } else {
+      userProfile = await prisma.employee.findUnique({ where: { email } });
+    }
+
+    if (!userProfile) {
+      return res.status(404).json({
+        success: false,
+        error: { code: "PROFILE_NOT_FOUND", message: "User profile could not be resolved" }
+      });
+    }
+
+    const userId = cred.role === "customer" ? userProfile.customer_id : userProfile.employee_id;
     const token = authService.generateToken({
       id: userId,
-      email: user.email,
-      role
+      email,
+      role: cred.role
     });
 
     res.json({
@@ -215,10 +231,10 @@ const verifyMfa = async (req: Request, res: Response) => {
         token,
         user: {
           id: userId,
-          email: user.email,
-          role,
-          first_name: user.first_name,
-          last_name: user.last_name
+          email,
+          role: cred.role,
+          first_name: userProfile.first_name,
+          last_name: userProfile.last_name
         }
       }
     });

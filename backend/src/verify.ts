@@ -8,7 +8,7 @@ const auditService = require("./modules/audit/audit.service");
 const { connectRedis } = require("./config/redis");
 
 async function runVerification() {
-  console.log("🚀 Starting End-to-End Backend Verification Process...");
+  console.log("🚀 Starting End-to-End Backend Verification Process (Decoupled Auth)...");
   
   // Make sure Redis is connected
   await connectRedis();
@@ -23,6 +23,7 @@ async function runVerification() {
   await prisma.card.deleteMany({});
   await prisma.account.deleteMany({});
   await prisma.employee.deleteMany({});
+  await prisma.credential.deleteMany({});
   
   // Leave default seeded bank, branch, and customers if any, or create a test customer
   await prisma.customer.deleteMany({
@@ -43,6 +44,7 @@ async function runVerification() {
   const hashedPassword = await authService.hashPassword(customerPassword);
   const mfaSecret = authService.generateTOTPSecret();
 
+  // Create profile
   const customer = await prisma.customer.create({
     data: {
       first_name: "Test",
@@ -50,16 +52,25 @@ async function runVerification() {
       cnic: "38302-1234567-9",
       email: "test_cust@gmail.com",
       phone: "0300-1234567",
-      address: "Mianwali, Pakistan",
-      password_hash: hashedPassword,
-      mfa_secret: mfaSecret,
-      mfa_enabled: false
+      address: "Mianwali, Pakistan"
     }
   });
+
+  // Create decoupled auth credentials
+  const credential = await prisma.credential.create({
+    data: {
+      email: "test_cust@gmail.com",
+      password_hash: hashedPassword,
+      mfa_secret: mfaSecret,
+      mfa_enabled: false,
+      role: "customer"
+    }
+  });
+
   console.log(`👤 Customer created successfully. ID: ${customer.customer_id}`);
 
   // Test Password Matching
-  const isMatch = await authService.comparePassword(customerPassword, customer.password_hash);
+  const isMatch = await authService.comparePassword(customerPassword, credential.password_hash);
   console.log(`🔓 Password check: ${isMatch ? "PASS" : "FAIL"}`);
 
   // Verify TOTP MFA token generation and validation
@@ -71,6 +82,7 @@ async function runVerification() {
   console.log("\n👷 Registering and Authenticating Employee...");
   const employeePassword = "employeepass123";
   const hashedEmpPassword = await authService.hashPassword(employeePassword);
+  
   const employee = await prisma.employee.create({
     data: {
       branch_id: 1, // Trust Bank
@@ -78,12 +90,20 @@ async function runVerification() {
       last_name: "Teller",
       role: "TELLER",
       email: "test_emp@gmail.com",
-      hire_date: new Date(),
-      password_hash: hashedEmpPassword,
-      mfa_secret: authService.generateTOTPSecret(),
-      mfa_enabled: false
+      hire_date: new Date()
     }
   });
+
+  await prisma.credential.create({
+    data: {
+      email: "test_emp@gmail.com",
+      password_hash: hashedEmpPassword,
+      mfa_secret: authService.generateTOTPSecret(),
+      mfa_enabled: false,
+      role: "employee"
+    }
+  });
+
   console.log(`👤 Employee created successfully. ID: ${employee.employee_id}`);
 
   // ==========================================
@@ -218,7 +238,7 @@ async function runVerification() {
     console.log(`   [${idx+1}] Action: ${log.action} | Entity: ${log.entity_type} (ID: ${log.entity_id}) | By Employee: ${log.employee ? log.employee.first_name : "System"}`);
   });
 
-  console.log("\n🎉 ALL TESTS COMPLETED SUCCESSFULLY! E2E BACKEND FUNCTIONALITIES FULLY VERIFIED.");
+  console.log("\n🎉 ALL TESTS COMPLETED SUCCESSFULLY! E2E DECOUPLED AUTH BACKEND FULLY VERIFIED.");
   process.exit(0);
 }
 

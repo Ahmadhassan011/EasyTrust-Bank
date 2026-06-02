@@ -39,9 +39,6 @@ CREATE TABLE IF NOT EXISTS customer (
     address TEXT,
     dob DATE,
     kyc_status VARCHAR(50) DEFAULT 'PENDING',
-    password_hash VARCHAR(255),
-    mfa_secret VARCHAR(255),
-    mfa_enabled BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -71,9 +68,6 @@ CREATE TABLE IF NOT EXISTS employee (
     email VARCHAR(255) NOT NULL UNIQUE,
     hire_date DATE NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
-    password_hash VARCHAR(255),
-    mfa_secret VARCHAR(255),
-    mfa_enabled BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -207,6 +201,19 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_employee_id ON audit_log(employee_id);
 CREATE INDEX IF NOT EXISTS idx_audit_log_entity_type_id ON audit_log(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_card_account_id ON card(account_id);
 CREATE INDEX IF NOT EXISTS idx_card_status ON card(status);
+
+-- ============================================================================
+-- TABLE 13: CREDENTIAL (Decoupled Auth Table)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS credential (
+    credential_id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    mfa_secret VARCHAR(255) NOT NULL,
+    mfa_enabled BOOLEAN DEFAULT FALSE,
+    role VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
 -- ============================================================================
 -- DONE
