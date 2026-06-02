@@ -6,6 +6,7 @@ const createAccountSchema = z.object({
   account_type: z.enum(["SAVINGS", "CHECKING", "FIXED_DEPOSIT"]),
   balance: z.number().min(0).default(0),
   currency: z.string().length(3).default("PKR"),
+  daily_limit: z.number().min(0).optional(),
 });
 
 const updateAccountStatusSchema = z.object({
