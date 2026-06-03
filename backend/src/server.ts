@@ -31,6 +31,7 @@ const accountRoutes = require('./modules/account/account.routes');
 const transactionRoutes = require('./modules/transaction/transaction.routes');
 const loanRoutes = require('./modules/loan/loan.routes');
 const interbankRoutes = require('./modules/interbank/interbank.routes');
+const auditRoutes = require('./modules/audit/audit.routes');
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/customers', authenticate, customerRoutes);
@@ -38,6 +39,7 @@ app.use('/api/v1/accounts', authenticate, accountRoutes);
 app.use('/api/v1/transactions', authenticate, transactionRoutes);
 app.use('/api/v1/loans', authenticate, loanRoutes);
 app.use('/api/v1/interbank', authenticate, interbankRoutes);
+app.use('/api/v1/audit', authenticate, auditRoutes);
 
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

@@ -27,4 +27,4 @@ const loanIdParamSchema = z.object({
   id: z.coerce.number().positive(),
 });
 
-module.exports = { applyLoanSchema, approveLoanSchema, repayLoanSchema, loanIdParamSchema };
+module.exports = { applyLoanSchema, approveLoanSchema, rejectLoanSchema, repayLoanSchema, loanIdParamSchema };

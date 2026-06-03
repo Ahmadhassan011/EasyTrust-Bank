@@ -10,6 +10,6 @@ router.post("/apply", authorize("CUSTOMER"), validate(applyLoanSchema), loanCont
 router.patch("/:id/approve", authorize("LOAN_OFFICER", "MANAGER", "ADMIN"), validate(approveLoanSchema), loanController.approve);
 router.patch("/:id/reject", authorize("LOAN_OFFICER", "MANAGER", "ADMIN"), validate(rejectLoanSchema), loanController.reject);
 router.post("/:id/repay", authorize("CUSTOMER"), validate(repayLoanSchema), loanController.repay);
-router.get("/customer/:customerId", authorize("CUSTOMER", "LOAN_OFFICER", "MANAGER", "ADMIN"), loanController.getHistory);
+router.get("/customer/:customerId", authorize("CUSTOMER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"), loanController.getHistory);
 
 module.exports = router;

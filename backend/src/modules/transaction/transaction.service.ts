@@ -111,7 +111,27 @@ const executeWithdrawal = async (fromAccountId: number, amount: number, descript
     await tx.$executeRaw`SELECT balance FROM account WHERE account_id = ${fromAccountId} FOR UPDATE`;
 
     const sender = await tx.account.findUnique({ where: { account_id: fromAccountId } });
-    if (!sender || sender.balance.toNumber() < amount) {
+    if (!sender) throw new Error("Account not found");
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayWithdrawals = await tx.transaction.aggregate({
+      where: {
+        from_account_id: fromAccountId,
+        type: "WITHDRAWAL",
+        created_at: { gte: todayStart }
+      },
+      _sum: { amount: true }
+    });
+
+    const dailyLimit = sender.daily_limit.toNumber();
+    const todayTotal = todayWithdrawals._sum.amount?.toNumber() ?? 0;
+    if (todayTotal + amount > dailyLimit) {
+      throw new Error(`Daily withdrawal limit of ${dailyLimit} exceeded`);
+    }
+
+    if (sender.balance.toNumber() < amount) {
       throw new Error("Insufficient funds");
     }
 
