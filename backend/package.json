@@ -11,7 +11,12 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
   },
-  "keywords": ["banking", "express", "prisma", "postgresql"],
+  "keywords": [
+    "banking",
+    "express",
+    "prisma",
+    "postgresql"
+  ],
   "author": "Ahmad Hassan",
   "license": "MIT",
   "type": "commonjs",
