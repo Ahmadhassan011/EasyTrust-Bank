@@ -1,147 +1,104 @@
-# EasyTrust Bank - Online Banking System
+<div align="center">
 
-A secure, multi-branch online banking platform for managing customer accounts, processing transactions, and handling loan lifecycles with balance updates and audit trails.
+# EasyTrust Bank
+
+[![Node version](https://img.shields.io/badge/Node.js->=20-3c873a?style=flat-square)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169e1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Prisma](https://img.shields.io/badge/Prisma-2d3748?style=flat-square&logo=prisma&logoColor=white)](https://www.prisma.io)
+[![Express](https://img.shields.io/badge/Express-000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
+
+A banking system built with Express and TypeScript, featuring a full online banking domain model, JWT authentication with MFA support, idempotent transactions, and RAAST interbank transfer integration.
+
+[Features](#features) • [API Overview](#api-overview) • [Getting Started](#getting-started)
+
+</div>
 
 ## Features
 
-- **Customer Management**: KYC verification, account management
-- **Transaction Processing**: Internal transfers, deposits, withdrawals
-- **Loan Management**: Applications, amortization, repayments
-- **Interbank Transfers**: Raast network integration for cross-bank transfers
-- **Distributed Transactions**: Atomic fund transfers with ACID guarantees
-- **Audit Trail**: Immutable audit logs for regulatory compliance
-- **Multi-Branch Support**: Manage multiple bank branches with hierarchical structure
+- **Authentication & Authorization** — JWT-based auth with access/refresh tokens, role-based access control (Customer, Teller, Loan Officer, Manager, Admin, Auditor), and TOTP multi-factor authentication for employees.
+- **Customer Management** — Full CRUD with KYC status tracking, CNIC validation, and account/loan relationship queries.
+- **Account & Card Management** — Multiple account types, balance inquiries, daily limits, active/closed status transitions.
+- **Transactions** — Secure deposits, withdrawals, and internal transfers with pessimistic row-level locking (`SELECT ... FOR UPDATE`) and idempotency key support to prevent duplicate processing.
+- **Loan Management** — Loan application, officer approval/rejection with reason, repayment with principal/interest breakdown, and maturity tracking.
+- **RAAST Interbank Transfers** — Saga-based integration with Pakistan's RAAST instant payment network, including compensating transactions for rollback on failure and settlement status tracking.
+- **Audit Logging** — Immutable audit trail for all critical actions with before/after snapshots, employee attribution, and IP address capture.
+- **Reports** — Monthly transaction aggregation for management.
+- **Security** — Helmet for HTTP headers, rate limiting, Zod request validation, bcrypt password hashing (cost factor 12).
 
-## Tech Stack
+## API Overview
 
-- **Backend**: Node.js, Express, TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Caching/Coordination**: Redis
-- **Authentication**: JWT with MFA support
+All endpoints except auth are protected by JWT Bearer token authentication.
 
-## Prerequisites
+| Module | Base Path | Key Endpoints |
+| :--- | :--- | :--- |
+| **Auth** | `/api/v1/auth` | `POST /register`, `POST /login`, `POST /mfa/login`, `POST /mfa/setup`, `POST /mfa/enable`, `POST /mfa/disable`, `POST /refresh` |
+| **Customers** | `/api/v1/customers` | `GET /`, `GET /:id`, `GET /:id/accounts`, `GET /:id/loans`, `POST /`, `PUT /:id`, `DELETE /:id` |
+| **Accounts** | `/api/v1/accounts` | `GET /`, `GET /:id`, `GET /:id/balance`, `GET /customer/:customerId`, `POST /`, `PATCH /:id/status` |
+| **Transactions** | `/api/v1/transactions` | `POST /transfer`, `POST /deposit`, `POST /withdraw`, `GET /history/:accountId` |
+| **Loans** | `/api/v1/loans` | `POST /apply`, `PATCH /:id/approve`, `PATCH /:id/reject`, `POST /:id/repay`, `GET /customer/:customerId` |
+| **Interbank** | `/api/v1/interbank` | `POST /transfer`, `GET /:id/settlement` |
+| **Audit** | `/api/v1/audit` | `GET /` |
+| **Reports** | `/api/v1/reports` | `GET /monthly-transactions` |
+| **Health** | `/health` | `GET /` |
 
-- Node.js >= 18
-- PostgreSQL >= 14
-- Redis >= 6 (for Phase 6+)
+> [!TIP]
+> All monetary values are stored as `DECIMAL(15,2)` to avoid floating-point precision issues. Transfers, deposits, and withdrawals support optional `Idempotency-Key` headers for safe retries.
 
-## Setup Instructions
+### Roles
 
-### 1. Install Dependencies
+| Role | Access Level |
+| :--- | :--- |
+| `CUSTOMER` | Own profile, accounts, transfers, loan applications & repayments |
+| `TELLER` | Customer creation, deposits, withdrawals, interbank transfers |
+| `LOAN_OFFICER` | Loan approval/rejection, customer loan history |
+| `MANAGER` | Full operational access, account status changes, reports |
+| `ADMIN` | Full access including customer deletion |
+| `AUDITOR` | Read-only access to customers, accounts, audit logs |
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js >= 20
+- PostgreSQL 14+
+- Redis (optional, for extended session caching)
+
+### Setup
 
 ```bash
-cd project/backend
-npm install
-```
-
-### 2. Configure Environment
-
-Copy the example env file and update with your database credentials:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your PostgreSQL credentials:
-```
-DATABASE_URL="postgresql://user:password@localhost:5432/easytrust_bank?schema=public"
-JWT_SECRET="your-super-secret-jwt-key"
-REDIS_URL="redis://localhost:6379"
-PORT=3000
-NODE_ENV="development"
-```
-
-### 3. Create PostgreSQL Database
-
-From the **project/** directory:
-
-```bash
+# 1. Create the database
 ./setup.sh
-```
 
-This will:
-- Check PostgreSQL is running
-- Create the `easytrust_bank` database
-- Run `setup-database.sql` to create all 12 tables with `created_at` convention
-- Apply performance indexes
+# 2. Install backend dependencies
+cd project/backend && npm install
 
-Or manually:
-```bash
-sudo -u postgres createdb easytrust_bank
-psql -U postgres -d easytrust_bank -f setup-database.sql
-```
-
-### 4. Generate Prisma Client
-
-```bash
-cd project/backend
+# 3. Generate Prisma client
 npm run prisma:generate
-```
 
-### 5. Start Development Server
+# 4. Configure environment
+# Edit project/backend/.env with your database credentials
 
-```bash
+# 5. Start the development server
 npm run dev
 ```
 
-Server will run at `http://localhost:3000`
+The server runs at `http://localhost:3000` by default.
 
-## Database Schema
+### Database
 
-The system uses 12 normalized tables (3NF) with Prisma ORM:
+The `setup-database.sql` script and Prisma schema define 12 tables with full foreign key relationships, performance indexes on frequently queried columns (CNIC, email, account number, dates, statuses), and a database-level comment.
 
-- **bank**: Bank institutions with SWIFT codes
-- **branch**: Physical branch locations
-- **customer**: Customer profiles with KYC status
-- **account**: Financial accounts (savings, checking, fixed deposit)
-- **card**: Debit/credit cards with daily limits
-- **employee**: Bank staff with roles
-- **loan**: Loan products with interest rates
-- **loan_repayment**: Amortization schedules
-- **transaction**: All financial movements
-- **interbank_transfer**: Raast network transfers
-- **raast_network**: Raast API configuration
-- **audit_log**: Immutable audit trail
+Key tables: `bank`, `raast_network`, `customer`, `branch`, `employee`, `account`, `card`, `loan`, `transaction`, `interbank_transfer`, `loan_repayment`, `audit_log`.
 
-## API Endpoints (Planned)
-
-```
-POST   /api/v1/auth/login
-POST   /api/v1/auth/register
-POST   /api/v1/auth/mfa/verify
-
-GET    /api/v1/customers
-POST   /api/v1/customers
-GET    /api/v1/customers/:id/accounts
-
-GET    /api/v1/accounts/:id/balance
-POST   /api/v1/accounts/:id/transfer
-
-GET    /api/v1/transactions/history
-
-POST   /api/v1/loans/apply
-PUT    /api/v1/loans/:id/approve
-POST   /api/v1/loans/:id/repay
-
-POST   /api/v1/interbank/transfer
-
-GET    /api/v1/audit
-```
-
-## Useful Commands
+### Running Tests
 
 ```bash
-# Development
-npm run dev          # Start with hot reload
-npm run build        # Compile TypeScript
-npm run start        # Run production build
-
-# Prisma
-npm run prisma:generate   # Generate Prisma Client
-npm run prisma:migrate    # Run migrations
-npm run prisma:studio     # Open database GUI
+# Unit tests (interbank saga)
+npm test
 ```
 
-## License
+Tests use Node's built-in `node:test` runner with mocked Prisma and fetch, covering the full interbank transfer saga lifecycle including success, RAAST rejection, network errors, and validation checks.
 
-MIT
+
