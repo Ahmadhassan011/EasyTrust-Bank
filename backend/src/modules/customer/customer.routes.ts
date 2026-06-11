@@ -2,16 +2,16 @@ const { Router } = require("express");
 const { authorize } = require("../../middleware/auth");
 const { validate } = require("../../middleware/validate");
 const customerController = require("./customer.controller");
-const { createCustomerSchema, updateCustomerSchema } = require("./customer.validation");
+const { createCustomerSchema, updateCustomerSchema, customerIdParamSchema } = require("./customer.validation");
 
 const router = Router();
 
 router.post("/", authorize("TELLER", "MANAGER", "ADMIN"), validate(createCustomerSchema), customerController.create);
 router.get("/", authorize("ADMIN", "MANAGER"), customerController.getAll);
-router.get("/:id", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN", "LOAN_OFFICER", "AUDITOR"), customerController.getById);
-router.get("/:id/accounts", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN", "AUDITOR"), customerController.getAccounts);
-router.get("/:id/loans", authorize("CUSTOMER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"), customerController.getLoans);
-router.put("/:id", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), validate(updateCustomerSchema), customerController.update);
-router.delete("/:id", authorize("ADMIN"), customerController.remove);
+router.get("/:id", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN", "LOAN_OFFICER", "AUDITOR"), validate(customerIdParamSchema, "params"), customerController.getById);
+router.get("/:id/accounts", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN", "AUDITOR"), validate(customerIdParamSchema, "params"), customerController.getAccounts);
+router.get("/:id/loans", authorize("CUSTOMER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"), validate(customerIdParamSchema, "params"), customerController.getLoans);
+router.put("/:id", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), validate(updateCustomerSchema), validate(customerIdParamSchema, "params"), customerController.update);
+router.delete("/:id", authorize("ADMIN"), validate(customerIdParamSchema, "params"), customerController.remove);
 
 module.exports = router;

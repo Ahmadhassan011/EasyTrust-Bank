@@ -11,7 +11,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(helmet());
-app.use(cors());
+
+const corsOrigin = process.env.CORS_ORIGIN || "*";
+const corsOptions = {
+  origin: corsOrigin === "*" ? "*" : corsOrigin.split(",").map((s) => s.trim()),
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"],
+};
+app.use(cors(corsOptions));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -32,6 +39,7 @@ const transactionRoutes = require('./modules/transaction/transaction.routes');
 const loanRoutes = require('./modules/loan/loan.routes');
 const interbankRoutes = require('./modules/interbank/interbank.routes');
 const auditRoutes = require('./modules/audit/audit.routes');
+const reportsRoutes = require('./modules/reports/reports.routes');
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/customers', authenticate, customerRoutes);
@@ -40,6 +48,7 @@ app.use('/api/v1/transactions', authenticate, transactionRoutes);
 app.use('/api/v1/loans', authenticate, loanRoutes);
 app.use('/api/v1/interbank', authenticate, interbankRoutes);
 app.use('/api/v1/audit', authenticate, auditRoutes);
+app.use('/api/v1/reports', authenticate, reportsRoutes);
 
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

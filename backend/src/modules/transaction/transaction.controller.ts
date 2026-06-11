@@ -1,10 +1,22 @@
 import type { Request, Response } from "express";
 const transactionService = require("./transaction.service");
 const auditService = require("../audit/audit.service");
+const accountService = require("../account/account.service");
+
+const requireOwnAccount = async (req: Request, accountId: number) => {
+  if (req.user?.type !== "customer") return;
+  const account = await accountService.getAccountById(accountId);
+  if (!account || account.customer_id !== req.user.userId) {
+    const err = new Error("Access denied");
+    (err as any).statusCode = 403;
+    throw err;
+  }
+};
 
 const transfer = async (req: Request, res: Response) => {
   try {
     const { fromAccountId, toAccountId, amount, description } = req.body;
+    await requireOwnAccount(req, Number(fromAccountId));
     const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
     const transaction = await transactionService.executeTransfer(
       Number(fromAccountId), Number(toAccountId), Number(amount), description, idempotencyKey
@@ -14,7 +26,7 @@ const transfer = async (req: Request, res: Response) => {
       entityType: "transaction",
       entityId: transaction.transaction_id,
       action: "TRANSFER",
-      newValue: JSON.stringify(transaction),
+      newValue: transaction,
       ipAddress: req.ip,
     });
     res.status(201).json({ success: true, data: transaction });
@@ -26,6 +38,7 @@ const transfer = async (req: Request, res: Response) => {
 const deposit = async (req: Request, res: Response) => {
   try {
     const { toAccountId, amount, description } = req.body;
+    await requireOwnAccount(req, Number(toAccountId));
     const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
     const transaction = await transactionService.executeDeposit(
       Number(toAccountId), Number(amount), description, idempotencyKey
@@ -35,7 +48,7 @@ const deposit = async (req: Request, res: Response) => {
       entityType: "transaction",
       entityId: transaction.transaction_id,
       action: "DEPOSIT",
-      newValue: JSON.stringify(transaction),
+      newValue: transaction,
       ipAddress: req.ip,
     });
     res.status(201).json({ success: true, data: transaction });
@@ -47,6 +60,7 @@ const deposit = async (req: Request, res: Response) => {
 const withdraw = async (req: Request, res: Response) => {
   try {
     const { fromAccountId, amount, description } = req.body;
+    await requireOwnAccount(req, Number(fromAccountId));
     const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
     const transaction = await transactionService.executeWithdrawal(
       Number(fromAccountId), Number(amount), description, idempotencyKey
@@ -56,7 +70,7 @@ const withdraw = async (req: Request, res: Response) => {
       entityType: "transaction",
       entityId: transaction.transaction_id,
       action: "WITHDRAWAL",
-      newValue: JSON.stringify(transaction),
+      newValue: transaction,
       ipAddress: req.ip,
     });
     res.status(201).json({ success: true, data: transaction });
@@ -67,6 +81,7 @@ const withdraw = async (req: Request, res: Response) => {
 
 const history = async (req: Request, res: Response) => {
   try {
+    await requireOwnAccount(req, Number(req.params.accountId));
     const { limit, offset, fromDate, toDate } = req.query;
     const result = await transactionService.getTransactionHistory(Number(req.params.accountId), {
       limit: limit ? Number(limit) : undefined,

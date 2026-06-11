@@ -106,11 +106,18 @@ const getLoansByCustomer = async (customerId: number) => {
   });
 };
 
+const getLoanById = async (loanId: number) => {
+  return await prisma.loan.findUnique({
+    where: { loan_id: loanId }
+  });
+};
+
 module.exports = {
   calculateEMI,
   applyForLoan,
   approveLoan,
   rejectLoan,
   makeRepayment,
-  getLoansByCustomer
+  getLoansByCustomer,
+  getLoanById
 };

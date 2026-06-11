@@ -36,6 +36,12 @@ const executeTransfer = async (
     if (!sender || !receiver) {
       throw new Error("Account not found");
     }
+    if (sender.status === "CLOSED") {
+      throw new Error("Sender account is closed");
+    }
+    if (receiver.status === "CLOSED") {
+      throw new Error("Receiver account is closed");
+    }
     if (sender.status !== "ACTIVE") {
       throw new Error("Sender account is not active");
     }
@@ -81,6 +87,10 @@ const executeDeposit = async (toAccountId: number, amount: number, description?:
   const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.$executeRaw`SELECT balance FROM account WHERE account_id = ${toAccountId} FOR UPDATE`;
 
+    const receiver = await tx.account.findUnique({ where: { account_id: toAccountId } });
+    if (!receiver) throw new Error("Account not found");
+    if (receiver.status === "CLOSED") throw new Error("Account is closed");
+
     await tx.account.update({
       where: { account_id: toAccountId },
       data: { balance: { increment: amount } }
@@ -112,6 +122,8 @@ const executeWithdrawal = async (fromAccountId: number, amount: number, descript
 
     const sender = await tx.account.findUnique({ where: { account_id: fromAccountId } });
     if (!sender) throw new Error("Account not found");
+    if (sender.status === "CLOSED") throw new Error("Account is closed");
+    if (sender.status !== "ACTIVE") throw new Error("Account is not active");
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);

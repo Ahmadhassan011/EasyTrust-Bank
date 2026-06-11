@@ -6,8 +6,8 @@ interface LogParams {
   entityType: string;
   entityId: number;
   action: string;
-  oldValue?: string | null;
-  newValue?: string | null;
+  oldValue?: Record<string, any> | null;
+  newValue?: Record<string, any> | null;
   ipAddress?: string | null;
 }
 

@@ -207,8 +207,8 @@ model AuditLog {
   entity_type String
   entity_id   Int
   action      String
-  old_value   String?
-  new_value   String?
+  old_value   Json?
+  new_value   Json?
   logged_at   DateTime  @default(now())
   ip_address  String?   @db.VarChar(45)
   employee    Employee? @relation(fields: [employee_id], references: [employee_id])

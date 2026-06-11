@@ -9,4 +9,8 @@ const transferSchema = z.object({
   raastReference: z.string().trim().max(255).optional(),
 });
 
-module.exports = { transferSchema };
+const interbankIdParamSchema = z.object({
+  id: z.coerce.number().positive(),
+});
+
+module.exports = { transferSchema, interbankIdParamSchema };

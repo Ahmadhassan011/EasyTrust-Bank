@@ -2,12 +2,22 @@ import type { Request, Response } from "express";
 const loanService = require("./loan.service");
 const auditService = require("../audit/audit.service");
 
+const requireOwnCustomer = (req: Request, customerId: number) => {
+  if (req.user?.type === "customer" && req.user.userId !== customerId) {
+    const err = new Error("Access denied");
+    (err as any).statusCode = 403;
+    throw err;
+  }
+};
+
 const apply = async (req: Request, res: Response) => {
   try {
+    requireOwnCustomer(req, Number(req.body.customer_id));
     const loan = await loanService.applyForLoan(req.body);
     res.status(201).json({ success: true, data: loan });
   } catch (error: any) {
-    res.status(400).json({ success: false, error: { code: "APPLICATION_FAILED", message: error.message } });
+    const status = error.statusCode || 400;
+    res.status(status).json({ success: false, error: { code: status === 403 ? "FORBIDDEN" : "APPLICATION_FAILED", message: error.message } });
   }
 };
 
@@ -20,7 +30,7 @@ const approve = async (req: Request, res: Response) => {
       entityType: "loan",
       entityId: loan.loan_id,
       action: "APPROVE",
-      newValue: JSON.stringify(loan),
+      newValue: loan,
       ipAddress: req.ip,
     });
     res.json({ success: true, data: loan });
@@ -38,7 +48,7 @@ const reject = async (req: Request, res: Response) => {
       entityType: "loan",
       entityId: loan.loan_id,
       action: "REJECT",
-      newValue: JSON.stringify(loan),
+      newValue: loan,
       ipAddress: req.ip,
     });
     res.json({ success: true, data: loan });
@@ -50,13 +60,19 @@ const reject = async (req: Request, res: Response) => {
 const repay = async (req: Request, res: Response) => {
   try {
     const { fromAccountId, amount } = req.body;
+    if (req.user?.type === "customer") {
+      const loan = await loanService.getLoanById(Number(req.params.id));
+      if (!loan || loan.customer_id !== req.user.userId) {
+        return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Access denied" } });
+      }
+    }
     const repayment = await loanService.makeRepayment(Number(req.params.id), Number(fromAccountId), Number(amount));
     await auditService.log({
       employeeId: req.user?.type === "employee" ? req.user.userId : null,
       entityType: "loan_repayment",
       entityId: Number(req.params.id),
       action: "REPAY",
-      newValue: JSON.stringify(repayment),
+      newValue: repayment,
       ipAddress: req.ip,
     });
     res.status(201).json({ success: true, data: repayment });
@@ -67,10 +83,12 @@ const repay = async (req: Request, res: Response) => {
 
 const getHistory = async (req: Request, res: Response) => {
   try {
+    requireOwnCustomer(req, Number(req.params.customerId));
     const loans = await loanService.getLoansByCustomer(Number(req.params.customerId));
     res.json({ success: true, data: loans });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: "FETCH_FAILED", message: "Failed to fetch loan history" } });
+    const status = error.statusCode || 500;
+    res.status(status).json({ success: false, error: { code: status === 403 ? "FORBIDDEN" : "FETCH_FAILED", message: error.message } });
   }
 };
 
