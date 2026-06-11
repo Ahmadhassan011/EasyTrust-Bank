@@ -14,6 +14,14 @@ const apply = async (req: Request, res: Response) => {
   try {
     requireOwnCustomer(req, Number(req.body.customer_id));
     const loan = await loanService.applyForLoan(req.body);
+    await auditService.log({
+      employeeId: req.user?.type === "employee" ? req.user.userId : null,
+      entityType: "loan",
+      entityId: loan.loan_id,
+      action: "APPLY",
+      newValue: loan,
+      ipAddress: req.ip,
+    });
     res.status(201).json({ success: true, data: loan });
   } catch (error: any) {
     const status = error.statusCode || 400;

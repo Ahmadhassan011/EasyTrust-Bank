@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 const authService = require("./auth.service");
+const auditService = require("../audit/audit.service");
 
 const register = async (req: Request, res: Response) => {
   try {
@@ -39,6 +40,14 @@ const loginWithMfa = async (req: Request, res: Response) => {
 const setupMfa = async (req: Request, res: Response) => {
   try {
     const result = await authService.setupMfa(req.user!.userId);
+    await auditService.log({
+      employeeId: req.user!.userId,
+      entityType: "employee",
+      entityId: req.user!.userId,
+      action: "MFA_SETUP",
+      newValue: { secret: result.secret },
+      ipAddress: req.ip,
+    });
     res.json({ success: true, data: result });
   } catch (error: any) {
     res.status(400).json({ success: false, error: { code: "MFA_SETUP_FAILED", message: error.message } });
@@ -49,6 +58,13 @@ const enableMfa = async (req: Request, res: Response) => {
   try {
     const { secret, totpCode } = req.body;
     const result = await authService.enableMfa(req.user!.userId, secret, totpCode);
+    await auditService.log({
+      employeeId: req.user!.userId,
+      entityType: "employee",
+      entityId: req.user!.userId,
+      action: "MFA_ENABLE",
+      ipAddress: req.ip,
+    });
     res.json({ success: true, data: result });
   } catch (error: any) {
     res.status(400).json({ success: false, error: { code: "MFA_ENABLE_FAILED", message: error.message } });
@@ -59,6 +75,13 @@ const disableMfa = async (req: Request, res: Response) => {
   try {
     const { totpCode } = req.body;
     const result = await authService.disableMfa(req.user!.userId, totpCode);
+    await auditService.log({
+      employeeId: req.user!.userId,
+      entityType: "employee",
+      entityId: req.user!.userId,
+      action: "MFA_DISABLE",
+      ipAddress: req.ip,
+    });
     res.json({ success: true, data: result });
   } catch (error: any) {
     res.status(400).json({ success: false, error: { code: "MFA_DISABLE_FAILED", message: error.message } });

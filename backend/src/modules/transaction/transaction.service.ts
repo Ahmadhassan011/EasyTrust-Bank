@@ -90,6 +90,7 @@ const executeDeposit = async (toAccountId: number, amount: number, description?:
     const receiver = await tx.account.findUnique({ where: { account_id: toAccountId } });
     if (!receiver) throw new Error("Account not found");
     if (receiver.status === "CLOSED") throw new Error("Account is closed");
+    if (receiver.status !== "ACTIVE") throw new Error("Account is not active");
 
     await tx.account.update({
       where: { account_id: toAccountId },
