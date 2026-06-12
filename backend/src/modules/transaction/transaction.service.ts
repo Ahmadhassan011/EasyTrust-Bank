@@ -193,9 +193,20 @@ const getTransactionHistory = async (
   });
 };
 
+const getTransactionById = async (transactionId: number) => {
+  return await prisma.transaction.findUnique({
+    where: { transaction_id: transactionId },
+    include: {
+      fromAccount: { include: { customer: true } },
+      toAccount: { include: { customer: true } },
+    },
+  });
+};
+
 module.exports = {
   executeTransfer,
   executeDeposit,
   executeWithdrawal,
-  getTransactionHistory
+  getTransactionHistory,
+  getTransactionById,
 };

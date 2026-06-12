@@ -95,4 +95,16 @@ const history = async (req: Request, res: Response) => {
   }
 };
 
-module.exports = { transfer, deposit, withdraw, history };
+const getById = async (req: Request, res: Response) => {
+  try {
+    const transaction = await transactionService.getTransactionById(Number(req.params.id));
+    if (!transaction) {
+      return res.status(404).json({ success: false, error: { code: "NOT_FOUND", message: "Transaction not found" } });
+    }
+    res.json({ success: true, data: transaction });
+  } catch (error) {
+    res.status(500).json({ success: false, error: { code: "FETCH_FAILED", message: "Failed to fetch transaction" } });
+  }
+};
+
+module.exports = { transfer, deposit, withdraw, history, getById };
