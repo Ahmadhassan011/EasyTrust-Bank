@@ -30,6 +30,7 @@ global.fetch = (async (url: any, options: any): Promise<any> => {
 // Mock prisma.$transaction
 prisma.$transaction = async (callback: (tx: any) => Promise<any>) => {
   const mockTx = {
+    $executeRaw: async () => {},
     account: {
       findUnique: async () => mockDb.senderAccount,
       update: async (args: any) => {
