@@ -29,7 +29,7 @@ export default function MfaPage() {
 
   const generateQr = async (u: string) => {
     try {
-      const url = await QRCode.toDataURL(u, { width: 200, margin: 2, color: { dark: "#1e2a44", light: "#ffffff" } });
+      const url = await QRCode.toDataURL(u, { width: 200, margin: 2, color: { dark: "#1a2e24", light: "#ffffff" } });
       setQrDataUrl(url);
     } catch {
       setQrDataUrl("");
@@ -115,7 +115,7 @@ export default function MfaPage() {
   if (!user || user.type !== "employee") {
     return (
       <FadeIn>
-        <div className="card-premium p-16 text-center">
+        <div className="card-easytrust p-16 text-center">
           <ShieldCheck className="mx-auto h-10 w-10 text-navy-200" />
           <p className="mt-4 text-sm text-navy-500">MFA is only available for employee accounts.</p>
           <Link href="/settings" className="mt-4 inline-block text-sm font-semibold text-navy-900 hover:text-navy-700">&larr; Back to Settings</Link>
@@ -131,13 +131,13 @@ export default function MfaPage() {
           <ArrowLeft className="h-4 w-4" /> Settings
         </Link>
         <FadeIn>
-          <div className="card-premium p-12 text-center">
+          <div className="card-easytrust p-12 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500 mb-4">
               <CheckCircle2 className="h-8 w-8" />
             </div>
             <h2 className="text-xl font-bold text-navy-900 mb-2">{message}</h2>
             <p className="text-sm text-navy-400 mb-6">Your security settings have been updated.</p>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} className="rounded-xl bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all">
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} className="rounded-lg bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all">
               Done
             </motion.button>
           </div>
@@ -153,9 +153,9 @@ export default function MfaPage() {
       </Link>
 
       <FadeIn>
-        <div className="card-premium p-8">
+        <div className="card-easytrust p-8">
           <div className="flex items-center gap-4 mb-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-navy-100 text-navy-700">
+            <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-navy-100 text-navy-700">
               <ShieldCheck className="h-7 w-7" />
             </div>
             <div>
@@ -166,24 +166,24 @@ export default function MfaPage() {
             </div>
           </div>
 
-          <div className="divider-gradient mb-8" />
+          <div className="divider-brand mb-8" />
 
           {step === "idle" && (
             <div>
               {isEnabled ? (
                 <div className="space-y-6">
-                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 flex items-center gap-3">
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-4 flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
                     <p className="text-sm text-emerald-800">MFA is active on your account. You can disable it below.</p>
                   </div>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setStep("verify_disable")} className="rounded-xl bg-red-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-all">
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setStep("verify_disable")} className="rounded-lg bg-red-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-all">
                     Disable MFA
                   </motion.button>
                 </div>
               ) : (
                 <div className="space-y-6">
                   <p className="text-sm text-navy-600">Multi-factor authentication adds an extra layer of security by requiring a one-time code from your authenticator app in addition to your password.</p>
-                  <div className="rounded-xl bg-navy-50 p-4 flex items-start gap-3">
+                  <div className="rounded-lg bg-navy-50 p-4 flex items-start gap-3">
                     <Smartphone className="h-5 w-5 text-navy-400 shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-semibold text-navy-900">How it works</p>
@@ -194,7 +194,7 @@ export default function MfaPage() {
                       </ol>
                     </div>
                   </div>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSetup} disabled={loading} className="rounded-xl bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all">
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSetup} disabled={loading} className="rounded-lg bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all">
                     {loading ? "Generating..." : "Set up MFA"}
                   </motion.button>
                 </div>
@@ -207,7 +207,7 @@ export default function MfaPage() {
               <p className="text-sm text-navy-600">Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)</p>
 
               <div className="flex justify-center">
-                <div className="rounded-2xl border-2 border-navy-200 bg-white p-4">
+                <div className="rounded-lg border-2 border-border bg-background p-4">
                   {qrDataUrl ? (
                     <img src={qrDataUrl} alt="MFA QR Code" className="h-48 w-48" />
                   ) : (
@@ -216,7 +216,7 @@ export default function MfaPage() {
                 </div>
               </div>
 
-              <div className="rounded-xl bg-navy-50 p-4">
+              <div className="rounded-lg bg-navy-50 p-4">
                 <div className="flex items-center justify-between mb-1">
                   <p className="text-xs text-navy-400 font-medium uppercase tracking-wider">Or enter this key manually</p>
                   <motion.button whileTap={{ scale: 0.95 }} onClick={handleCopySecret} className="flex items-center gap-1 text-xs font-medium text-navy-600 hover:text-navy-900 transition-all">
@@ -226,7 +226,7 @@ export default function MfaPage() {
                 <p className="font-mono text-sm font-bold text-navy-900 break-all">{secret}</p>
               </div>
 
-              <div className="divider-gradient" />
+              <div className="divider-brand" />
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-navy-700">
@@ -242,17 +242,17 @@ export default function MfaPage() {
               </div>
 
               {error && (
-                <div className="rounded-xl bg-red-50 border border-red-200 p-3 flex items-center gap-2">
+                <div className="rounded-lg bg-red-50 border border-red-200 p-3 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
               )}
 
               <div className="flex gap-3">
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleEnable} disabled={loading} className="rounded-xl bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleEnable} disabled={loading} className="rounded-lg bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all">
                   {loading ? "Verifying..." : "Enable MFA"}
                 </motion.button>
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} disabled={loading} className="rounded-xl border border-navy-200 px-6 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} disabled={loading} className="rounded-lg border border-border px-6 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all">
                   Cancel
                 </motion.button>
               </div>
@@ -261,11 +261,11 @@ export default function MfaPage() {
 
           {step === "verify_disable" && (
             <div className="space-y-6">
-              <div className="rounded-xl bg-yellow-50 border border-yellow-200 p-4 flex items-start gap-3">
-                <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+              <div className="rounded-lg bg-navy-50 border border-navy-200 p-4 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-navy-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-yellow-800">Disable MFA</p>
-                  <p className="text-sm text-yellow-700">Enter a code from your authenticator app to confirm disabling MFA.</p>
+                  <p className="text-sm font-semibold text-navy-800">Disable MFA</p>
+                  <p className="text-sm text-navy-600">Enter a code from your authenticator app to confirm disabling MFA.</p>
                 </div>
               </div>
 
@@ -283,17 +283,17 @@ export default function MfaPage() {
               </div>
 
               {error && (
-                <div className="rounded-xl bg-red-50 border border-red-200 p-3 flex items-center gap-2">
+                <div className="rounded-lg bg-red-50 border border-red-200 p-3 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
               )}
 
               <div className="flex gap-3">
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleDisable} disabled={loading} className="rounded-xl bg-red-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60 transition-all">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleDisable} disabled={loading} className="rounded-lg bg-red-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60 transition-all">
                   {loading ? "Verifying..." : "Disable MFA"}
                 </motion.button>
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} disabled={loading} className="rounded-xl border border-navy-200 px-6 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} disabled={loading} className="rounded-lg border border-border px-6 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all">
                   Cancel
                 </motion.button>
               </div>

@@ -66,7 +66,7 @@ export default function StatementPage({
   if (!account) {
     return (
       <FadeIn>
-        <div className="card-premium p-16 text-center">
+        <div className="card-easytrust p-16 text-center">
           <Landmark className="mx-auto h-10 w-10 text-navy-200" />
           <p className="mt-4 text-navy-500">Account not found</p>
           <Link href="/accounts" className="mt-4 inline-block text-sm font-semibold text-navy-900 hover:text-navy-700">&larr; Back to Accounts</Link>
@@ -82,10 +82,10 @@ export default function StatementPage({
       </Link>
 
       <FadeIn>
-        <div className="card-premium p-8">
+        <div className="card-easytrust p-8">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-navy-100 text-navy-700">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-navy-100 text-navy-700">
                 <Landmark className="h-7 w-7" />
               </div>
               <div>
@@ -97,7 +97,7 @@ export default function StatementPage({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => window.print()}
-              className="flex items-center gap-2 rounded-xl border border-navy-200 px-4 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50 print:hidden transition-all"
+              className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50 print:hidden transition-all"
             >
               <Printer className="h-4 w-4" /> Print
             </motion.button>
@@ -106,7 +106,7 @@ export default function StatementPage({
       </FadeIn>
 
       <FadeIn>
-        <div className="card-premium p-6">
+        <div className="card-easytrust p-6">
           <div className="flex items-center gap-2 text-sm font-medium text-navy-700 mb-4">
             <Calendar className="h-4 w-4 text-navy-400" /> Date Range
           </div>
@@ -117,7 +117,7 @@ export default function StatementPage({
                 type="date"
                 value={fromDate}
                 onChange={(e) => { setFromDate(e.target.value); setPage(0); }}
-                className="rounded-xl border border-navy-200 bg-white px-4 py-2 text-sm text-navy-900 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all"
+                className="rounded-lg border border-border bg-background px-4 py-2 text-sm text-navy-900 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all"
               />
             </div>
             <div>
@@ -126,7 +126,7 @@ export default function StatementPage({
                 type="date"
                 value={toDate}
                 onChange={(e) => { setToDate(e.target.value); setPage(0); }}
-                className="rounded-xl border border-navy-200 bg-white px-4 py-2 text-sm text-navy-900 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all"
+                className="rounded-lg border border-border bg-background px-4 py-2 text-sm text-navy-900 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all"
               />
             </div>
           </div>
@@ -135,19 +135,19 @@ export default function StatementPage({
 
       <FadeIn>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="card-premium p-4 text-center">
+          <div className="card-easytrust p-4 text-center">
             <p className="text-xs text-navy-400 font-medium uppercase tracking-wider">Opening Balance</p>
             <p className="mt-1 text-lg font-bold text-navy-900">{formatCurrency(openingBalance)}</p>
           </div>
-          <div className="card-premium p-4 text-center">
+          <div className="card-easytrust p-4 text-center">
             <p className="text-xs text-navy-400 font-medium uppercase tracking-wider">Total Credits</p>
             <p className="mt-1 text-lg font-bold text-emerald-600">{formatCurrency(summary.credits)}</p>
           </div>
-          <div className="card-premium p-4 text-center">
+          <div className="card-easytrust p-4 text-center">
             <p className="text-xs text-navy-400 font-medium uppercase tracking-wider">Total Debits</p>
             <p className="mt-1 text-lg font-bold text-red-500">{formatCurrency(summary.debits)}</p>
           </div>
-          <div className="card-premium p-4 text-center">
+          <div className="card-easytrust p-4 text-center">
             <p className="text-xs text-navy-400 font-medium uppercase tracking-wider">Closing Balance</p>
             <p className="mt-1 text-lg font-bold text-navy-900">{balance ? formatCurrency(Number(balance.balance)) : "—"}</p>
           </div>
@@ -169,9 +169,9 @@ export default function StatementPage({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.02, duration: 0.2 }}
               >
-                <div className="card-premium flex items-center justify-between p-4 hover:-translate-y-0.5 transition-all">
+                <div className="card-easytrust flex items-center justify-between p-4 hover:-translate-y-0.5 transition-all">
                   <div className="flex items-center gap-4">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
                       isDebit ? "bg-red-50 text-red-500" : "bg-emerald-50 text-emerald-500"
                     }`}>
                       {isDebit ? <TrendingDown className="h-5 w-5" /> : <TrendingUp className="h-5 w-5" />}
@@ -198,7 +198,7 @@ export default function StatementPage({
           })}
           {(!history?.data || history.data.length === 0) && (
             <FadeIn>
-              <div className="card-premium p-12 text-center">
+              <div className="card-easytrust p-12 text-center">
                 <Calendar className="mx-auto h-8 w-8 text-navy-200" />
                 <p className="mt-3 text-sm text-navy-400">No transactions in this date range</p>
               </div>
@@ -211,7 +211,7 @@ export default function StatementPage({
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}
-              className="rounded-xl border border-navy-200 px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
+              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
               Previous
             </motion.button>
             <span className="text-sm text-navy-400">
@@ -220,7 +220,7 @@ export default function StatementPage({
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => setPage(page + 1)} disabled={(page + 1) * limit >= (history.total ?? 0)}
-              className="rounded-xl border border-navy-200 px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
+              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
               Next
             </motion.button>
           </div>
@@ -231,5 +231,5 @@ export default function StatementPage({
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-navy-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-navy-100 ${className}`} />;
 }

@@ -37,7 +37,7 @@ const allNavItems: NavItem[] = [
   { label: "Audit Log", href: "/audit", icon: <ScrollText className="h-4 w-4" />, roles: ["AUDITOR", "ADMIN"] },
   { label: "Reports", href: "/reports", icon: <BarChart3 className="h-4 w-4" />, roles: ["MANAGER", "ADMIN"] },
   { label: "Settings", href: "/settings", icon: <Settings className="h-4 w-4" />, roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
-  { label: "Help", href: "/help", icon: <HelpCircle className="h-4 w-4" />, roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
+  { label: "Support", href: "/support", icon: <HelpCircle className="h-4 w-4" />, roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
 ];
 
 const sidebarVariants = {
@@ -70,18 +70,18 @@ export function Sidebar({ onLogout }: { onLogout: () => void }) {
       initial="hidden"
       animate="visible"
       variants={sidebarVariants}
-      className="flex w-60 flex-col bg-navy-900 text-white"
+      className="flex w-60 flex-col bg-sidebar text-sidebar-foreground"
     >
-      <div className="flex h-16 items-center gap-2.5 px-6 border-b border-white/5">
+      <div className="flex h-16 items-center gap-2.5 px-6 border-b border-sidebar-border">
         <motion.div
           initial={{ rotate: -180, opacity: 0 }}
           animate={{ rotate: 0, opacity: 1 }}
           transition={{ duration: 0.4, ease: easeOut }}
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10"
+          className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-sm"
         >
-          <Landmark className="h-4 w-4 text-white" />
+          <Landmark className="h-4 w-4 text-primary-foreground" />
         </motion.div>
-        <span className="text-lg font-bold tracking-tight">EasyTrust</span>
+        <span className="text-lg font-bold tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>EasyTrust</span>
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-5">
@@ -97,8 +97,8 @@ export function Sidebar({ onLogout }: { onLogout: () => void }) {
                 href={item.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
                   active
-                    ? "bg-white/10 text-white shadow-sm"
-                    : "text-white/50 hover:bg-white/5 hover:text-white"
+                    ? "bg-navy-100 text-navy-900 shadow-sm"
+                    : "text-muted-foreground hover:bg-navy-50 hover:text-foreground"
                 }`}
               >
                 {item.icon}
@@ -109,12 +109,12 @@ export function Sidebar({ onLogout }: { onLogout: () => void }) {
         })}
       </nav>
 
-      <div className="border-t border-white/5 px-3 py-4">
+      <div className="border-t border-sidebar-border px-3 py-4">
         <motion.button
           whileHover={{ x: 2 }}
           whileTap={{ scale: 0.98 }}
           onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/50 hover:bg-white/5 hover:text-white transition-all"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-navy-50 hover:text-foreground transition-all"
         >
           <LogOut className="h-4 w-4" />
           Sign Out

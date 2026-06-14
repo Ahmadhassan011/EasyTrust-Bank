@@ -21,6 +21,10 @@ const executeTransfer = async (
   description?: string,
   idempotencyKey?: string
 ) => {
+  if (fromAccountId === toAccountId) {
+    throw new Error("Cannot transfer to the same account");
+  }
+
   if (idempotencyKey) {
     const existing = checkIdempotency(idempotencyKey);
     if (existing) return existing;

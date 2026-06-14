@@ -40,7 +40,7 @@ export default function AccountDetailPage({
   if (!account) {
     return (
       <FadeIn>
-        <div className="card-premium p-16 text-center">
+        <div className="card-easytrust p-16 text-center">
           <Landmark className="mx-auto h-10 w-10 text-navy-200" />
           <p className="mt-4 text-navy-500">Account not found</p>
           <Link href="/accounts" className="mt-4 inline-block text-sm font-semibold text-navy-900 hover:text-navy-700">&larr; Back to Accounts</Link>
@@ -61,11 +61,11 @@ export default function AccountDetailPage({
       </Link>
 
       <FadeIn>
-        <motion.div whileHover={{ y: -2 }} className="card-premium overflow-hidden">
+        <motion.div whileHover={{ y: -2 }} className="card-easytrust overflow-hidden">
           <div className="p-8">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-navy-100 text-navy-700">
+                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-navy-100 text-navy-700">
                   <Icon className="h-7 w-7" />
                 </div>
                 <div>
@@ -77,16 +77,16 @@ export default function AccountDetailPage({
               </div>
               <div className="flex items-start gap-2">
                 <Link href={`/accounts/${accountId}/statement`}>
-                  <motion.span whileHover={{ scale: 1.02 }} className="flex items-center gap-1.5 rounded-xl border border-navy-200 px-3 py-1.5 text-xs font-medium text-navy-600 hover:bg-navy-50 transition-all">
+                  <motion.span whileHover={{ scale: 1.02 }} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-navy-600 hover:bg-navy-50 transition-all">
                     <FileText className="h-3.5 w-3.5" /> Statement
                   </motion.span>
                 </Link>
-                <span className={`rounded-xl border px-3 py-1.5 text-xs font-medium ${getStatusColor(account.status)}`}>
+                <span className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${getStatusColor(account.status)}`}>
                   {account.status}
                 </span>
               </div>
             </div>
-            <div className="divider-gradient my-6" />
+            <div className="divider-brand my-6" />
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-sm font-medium text-navy-400">Current Balance</p>
@@ -126,9 +126,9 @@ export default function AccountDetailPage({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.03, duration: 0.3 }}
               >
-                <div className="card-premium flex items-center justify-between p-4 hover:-translate-y-0.5">
+                <div className="card-easytrust flex items-center justify-between p-4 hover:-translate-y-0.5">
                   <div className="flex items-center gap-4">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
                       isDebit ? "bg-red-50 text-red-500" : "bg-emerald-50 text-emerald-500"
                     }`}>
                       {isDebit ? <TrendingDown className="h-5 w-5" /> : <TrendingUp className="h-5 w-5" />}
@@ -162,7 +162,7 @@ export default function AccountDetailPage({
           })}
           {(!history?.data || history.data.length === 0) && (
             <FadeIn>
-              <div className="card-premium p-12 text-center">
+              <div className="card-easytrust p-12 text-center">
                 <TrendingUp className="mx-auto h-8 w-8 text-navy-200" />
                 <p className="mt-3 text-sm text-navy-400">No transactions yet</p>
               </div>
@@ -175,7 +175,7 @@ export default function AccountDetailPage({
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}
-              className="rounded-xl border border-navy-200 px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
+              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
               Previous
             </motion.button>
             <span className="text-sm text-navy-400">
@@ -184,7 +184,7 @@ export default function AccountDetailPage({
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => setPage(page + 1)} disabled={(page + 1) * limit >= (history.total ?? 0)}
-              className="rounded-xl border border-navy-200 px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
+              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
               Next
             </motion.button>
           </div>
@@ -195,5 +195,5 @@ export default function AccountDetailPage({
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-navy-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-navy-100 ${className}`} />;
 }

@@ -56,9 +56,9 @@ export default function CreateAccountPage() {
       </div>
 
       <FadeIn>
-        <motion.div whileHover={{ y: -2 }} className="card-premium p-8">
+        <motion.div whileHover={{ y: -2 }} className="card-easytrust p-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-100">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100">
               <Landmark className="h-5 w-5 text-navy-700" />
             </div>
             <div>
@@ -70,7 +70,7 @@ export default function CreateAccountPage() {
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             {error && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                className="flex items-center gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 {error}
               </motion.div>
@@ -109,7 +109,7 @@ export default function CreateAccountPage() {
 
             <motion.button type="submit" disabled={loading}
               whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-              className="w-full rounded-xl bg-navy-900 px-4 py-3 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-50 transition-all shadow-lg shadow-navy-900/10">
+              className="w-full rounded-lg bg-navy-900 px-4 py-3 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-50 transition-all shadow-lg shadow-navy-900/10">
               {loading ? "Creating..." : "Create Account"}
             </motion.button>
           </form>

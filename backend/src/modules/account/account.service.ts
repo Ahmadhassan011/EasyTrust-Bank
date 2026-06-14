@@ -1,5 +1,15 @@
 const prisma = require("../../config/prisma");
 
+const generateAccountNumber = async (branchId: number): Promise<string> => {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const suffix = Math.floor(10000000 + Math.random() * 90000000).toString();
+    const candidate = `ETB${branchId}${suffix}`;
+    const existing = await prisma.account.findUnique({ where: { account_number: candidate } });
+    if (!existing) return candidate;
+  }
+  throw new Error("Failed to generate a unique account number. Please try again.");
+};
+
 const createAccount = async (data: any) => {
   const customer = await prisma.customer.findUnique({ where: { customer_id: data.customer_id } });
   if (!customer) {
@@ -10,8 +20,7 @@ const createAccount = async (data: any) => {
   }
 
   if (!data.account_number) {
-    const randomSuffix = Math.floor(10000000 + Math.random() * 90000000).toString();
-    data.account_number = `ETB${data.branch_id}${randomSuffix}`;
+    data.account_number = await generateAccountNumber(data.branch_id);
   }
 
   return await prisma.account.create({

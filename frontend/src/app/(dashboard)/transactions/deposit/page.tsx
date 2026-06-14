@@ -3,35 +3,48 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, TrendingUp, AlertCircle } from "lucide-react";
+import { ArrowLeft, TrendingUp } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
 import { FormField, Input } from "@/components/ui/form-field";
 
+const depositSchema = z.object({
+  account_id: z.coerce.number().int().positive("Account ID must be a positive number"),
+  amount: z.coerce.number().positive("Amount must be a positive number"),
+  description: z.string().optional(),
+});
+
+type DepositFormValues = z.infer<typeof depositSchema>;
+
 export default function DepositPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ account_id: "", amount: "", description: "" });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function update(field: string, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<DepositFormValues>({
+    resolver: zodResolver(depositSchema),
+  });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
+  async function onSubmit(data: DepositFormValues) {
     setLoading(true);
     try {
       const { data: res } = await api.post("/transactions/deposit", {
-        to_account_id: parseInt(form.account_id),
-        amount: parseFloat(form.amount),
-        description: form.description || undefined,
+        to_account_id: data.account_id,
+        amount: data.amount,
+        description: data.description || undefined,
       });
+      toast.success("Deposit successful");
       router.push(`/transactions/receipt/${res.data.transaction_id}`);
     } catch {
-      setError("Deposit failed. Check the account ID.");
+      toast.error("Deposit failed. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -46,9 +59,9 @@ export default function DepositPage() {
       </div>
 
       <FadeIn>
-        <motion.div whileHover={{ y: -2 }} className="card-premium p-8">
+        <motion.div whileHover={{ y: -2 }} className="card-easytrust p-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
               <TrendingUp className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
@@ -57,35 +70,22 @@ export default function DepositPage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-            {error && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                {error}
-              </motion.div>
-            )}
-
-            <FormField label="Account ID">
-              <Input type="number" required value={form.account_id}
-                onChange={(e) => update("account_id", e.target.value)} />
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
+            <FormField label="Account ID" error={errors.account_id?.message}>
+              <Input type="number" {...register("account_id")} />
             </FormField>
 
-            <FormField label="Amount (PKR)">
-              <Input type="number" step="0.01" required value={form.amount}
-                onChange={(e) => update("amount", e.target.value)}
-                placeholder="0.00" />
+            <FormField label="Amount (PKR)" error={errors.amount?.message}>
+              <Input type="number" step="0.01" {...register("amount")} placeholder="0.00" />
             </FormField>
 
-            <FormField label="Description (optional)">
-              <Input type="text" value={form.description}
-                onChange={(e) => update("description", e.target.value)}
-                placeholder="Deposit reference" />
+            <FormField label="Description (optional)" error={errors.description?.message}>
+              <Input type="text" {...register("description")} placeholder="Deposit reference" />
             </FormField>
 
             <motion.button type="submit" disabled={loading}
               whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-              className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50 transition-all shadow-lg shadow-emerald-600/20">
+              className="w-full rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50 transition-all shadow-lg shadow-emerald-600/20">
               {loading ? "Processing..." : "Deposit"}
             </motion.button>
           </form>

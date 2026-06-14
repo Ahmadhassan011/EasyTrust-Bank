@@ -124,16 +124,26 @@ const setupMfa = async (employeeId: number) => {
   const secret = authenticator.generateSecret();
   const uri = authenticator.keyuri(employee.email, "EasyTrust Bank", secret);
 
-  return { secret, uri };
+  // Store pending secret server-side; mfa_enabled stays false until enableMfa confirms the TOTP code
+  await prisma.employee.update({
+    where: { employee_id: employeeId },
+    data: { totp_secret: secret },
+  });
+
+  return { uri };
 };
 
-const enableMfa = async (employeeId: number, secret: string, totpCode: string) => {
-  const valid = authenticator.verify({ token: totpCode, secret });
+const enableMfa = async (employeeId: number, totpCode: string) => {
+  const employee = await prisma.employee.findUnique({ where: { employee_id: employeeId } });
+  if (!employee) throw new Error("Employee not found");
+  if (!employee.totp_secret) throw new Error("MFA setup not initiated. Call /mfa/setup first.");
+
+  const valid = authenticator.verify({ token: totpCode, secret: employee.totp_secret });
   if (!valid) throw new Error("Invalid MFA code");
 
   await prisma.employee.update({
     where: { employee_id: employeeId },
-    data: { totp_secret: secret, mfa_enabled: true },
+    data: { mfa_enabled: true },
   });
 
   return { message: "MFA enabled" };

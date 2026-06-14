@@ -37,7 +37,7 @@ export default function CustomerDetailPage({
   if (!customer) {
     return (
       <FadeIn>
-        <div className="card-premium p-16 text-center">
+        <div className="card-easytrust p-16 text-center">
           <User className="mx-auto h-10 w-10 text-navy-200" />
           <p className="mt-4 text-navy-500">Customer not found</p>
           <Link href="/customers" className="mt-4 inline-block text-sm font-semibold text-navy-900 hover:text-navy-700">&larr; Back</Link>
@@ -53,10 +53,10 @@ export default function CustomerDetailPage({
       </Link>
 
       <FadeIn>
-        <motion.div whileHover={{ y: -2 }} className="card-premium p-8">
+        <motion.div whileHover={{ y: -2 }} className="card-easytrust p-8">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-navy-100 text-navy-700">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-navy-100 text-navy-700">
                 <User className="h-7 w-7" />
               </div>
               <div>
@@ -69,7 +69,7 @@ export default function CustomerDetailPage({
               </div>
             </div>
           </div>
-          <div className="divider-gradient my-6" />
+          <div className="divider-brand my-6" />
           <div className="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-navy-400" />
@@ -121,7 +121,7 @@ export default function CustomerDetailPage({
             <StaggerItem key={acct.account_id}>
               <motion.div whileHover={{ y: -3 }}>
                 <Link href={`/accounts/${acct.account_id}`}
-                  className="group card-premium p-5 block">
+                  className="group card-easytrust p-5 block">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Landmark className="h-5 w-5 text-navy-400 group-hover:text-navy-900 transition-colors" />
@@ -155,7 +155,7 @@ export default function CustomerDetailPage({
             <StaggerItem key={loan.loan_id}>
               <motion.div whileHover={{ y: -3 }}>
                 <Link href={`/loans/${loan.loan_id}`}
-                  className="group card-premium p-5 block">
+                  className="group card-easytrust p-5 block">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <HandCoins className="h-5 w-5 text-navy-400 group-hover:text-navy-900 transition-colors" />
@@ -184,5 +184,5 @@ export default function CustomerDetailPage({
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-navy-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-navy-100 ${className}`} />;
 }

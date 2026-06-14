@@ -30,7 +30,7 @@ export default function AuditPage() {
     <div className="space-y-6">
       <FadeIn>
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-100">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100">
             <Search className="h-5 w-5 text-navy-700" />
           </div>
           <div>
@@ -41,7 +41,7 @@ export default function AuditPage() {
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <div className="flex flex-wrap gap-3 card-premium p-4">
+        <div className="flex flex-wrap gap-3 card-easytrust p-4">
           <Select value={filters.entityType} onChange={(e) => update("entityType", e.target.value)}>
             <option value="">All entity types</option>
             {entityTypes.filter(Boolean).map((t) => <option key={t} value={t}>{t}</option>)}
@@ -51,17 +51,17 @@ export default function AuditPage() {
             {actions.filter(Boolean).map((a) => <option key={a} value={a}>{a}</option>)}
           </Select>
           <input type="date" value={filters.startDate} onChange={(e) => update("startDate", e.target.value)}
-            className="rounded-xl border border-navy-200 bg-white px-4 py-2.5 text-sm text-navy-700 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all" />
+            className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-navy-700 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all" />
           <input type="date" value={filters.endDate} onChange={(e) => update("endDate", e.target.value)}
-            className="rounded-xl border border-navy-200 bg-white px-4 py-2.5 text-sm text-navy-700 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all" />
+            className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-navy-700 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all" />
         </div>
       </FadeIn>
 
       <FadeIn delay={0.2}>
-        <div className="overflow-hidden rounded-xl border border-navy-200 bg-white">
+        <div className="overflow-hidden rounded-lg border border-border bg-background">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-navy-200 bg-navy-50">
+              <tr className="border-b border-border bg-background">
                 <th className="px-5 py-3.5 text-left font-semibold text-navy-600">Date</th>
                 <th className="px-5 py-3.5 text-left font-semibold text-navy-600">Employee</th>
                 <th className="px-5 py-3.5 text-left font-semibold text-navy-600">Entity</th>
@@ -74,7 +74,7 @@ export default function AuditPage() {
                 <tr><td colSpan={5} className="px-5 py-12 text-center text-navy-400">Loading...</td></tr>
               ) : logs && logs.length > 0 ? (
                 logs.map((log) => (
-                  <tr key={log.log_id} className="border-b border-navy-100 last:border-0 hover:bg-navy-50/50 transition-colors">
+                  <tr key={log.log_id} className="border-b border-border last:border-0 hover:bg-navy-100/50 transition-colors">
                     <td className="px-5 py-3 text-navy-600 whitespace-nowrap">{formatDateTime(log.logged_at)}</td>
                     <td className="px-5 py-3 text-navy-700">{log.employee_id ? `#${log.employee_id}` : "System"}</td>
                     <td className="px-5 py-3">

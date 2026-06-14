@@ -24,7 +24,7 @@ export default function LoansPage() {
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-2 h-8 w-24" />
           </div>
-          <Skeleton className="h-10 w-40 rounded-xl" />
+          <Skeleton className="h-10 w-40 rounded-lg" />
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {[1, 2].map((i) => <CardSkeleton key={i} />)}
@@ -45,7 +45,7 @@ export default function LoansPage() {
           {isCustomer && (
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link href="/loans/apply"
-                className="inline-flex items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
+                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
                 <Plus className="h-4 w-4" />
                 Apply for Loan
               </Link>
@@ -59,10 +59,10 @@ export default function LoansPage() {
           <StaggerItem key={loan.loan_id}>
             <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.98 }}>
               <Link href={`/loans/${loan.loan_id}`}
-                className="group card-premium p-6 block">
+                className="group card-easytrust p-6 block">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-100 text-navy-700 group-hover:bg-navy-900 group-hover:text-white transition-all">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy-100 text-navy-700 group-hover:bg-navy-900 group-hover:text-white transition-all">
                       <HandCoins className="h-5 w-5" />
                     </div>
                     <div>
@@ -93,7 +93,7 @@ export default function LoansPage() {
         ))}
         {(!loans || loans.length === 0) && (
           <StaggerItem>
-            <div className="col-span-full card-premium p-12 text-center">
+            <div className="col-span-full card-easytrust p-12 text-center">
               <HandCoins className="mx-auto h-8 w-8 text-navy-300" />
               <p className="mt-3 text-sm font-medium text-navy-500">No loans found.</p>
               {isCustomer && (
@@ -110,5 +110,5 @@ export default function LoansPage() {
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-navy-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-navy-100 ${className}`} />;
 }

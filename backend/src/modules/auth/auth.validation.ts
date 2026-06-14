@@ -24,8 +24,7 @@ const mfaLoginSchema = z.object({
 const mfaSetupSchema = z.object({});
 
 const mfaEnableSchema = z.object({
-  secret: z.string().min(1),
-  totpCode: z.string().min(1),
+  totpCode: z.string().length(6),
 });
 
 const mfaDisableSchema = z.object({

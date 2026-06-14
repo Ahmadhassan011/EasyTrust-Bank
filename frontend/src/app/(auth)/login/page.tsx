@@ -8,7 +8,7 @@ import { useAuthStore } from "@/store/auth";
 import { api } from "@/lib/api";
 import { easeOut } from "@/components/ui/animations";
 import { Input } from "@/components/ui/form-field";
-import { Landmark, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Landmark, LogIn, Eye, EyeOff, AlertCircle, X } from "lucide-react";
 import type { LoginResponse, ApiResponse } from "@/types";
 
 export default function LoginPage() {
@@ -76,16 +76,23 @@ export default function LoginPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}       transition={{ duration: 0.5, ease: easeOut }}
       className="w-full max-w-md">
-      <div className="card-premium p-8">
+      <div className="card-easytrust p-8 relative">
+        <Link
+          href="/"
+          className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/10 transition-all"
+          aria-label="Close and return to home"
+        >
+          <X className="h-4 w-4" />
+        </Link>
         <div className="text-center">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-navy-900 shadow-lg shadow-navy-900/10">
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/20">
             <LogIn className="h-5 w-5 text-white" />
           </motion.div>
-          <h1 className="mt-5 text-2xl font-bold text-navy-900">
+          <h1 className="mt-5 text-2xl font-bold text-foreground" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
             {mfaToken ? "Two-Factor Auth" : "Welcome back"}
           </h1>
-          <p className="mt-1.5 text-sm text-navy-500">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {mfaToken ? "Enter the code from your authenticator app." : "Sign in to your EasyTrust account."}
           </p>
         </div>
@@ -93,7 +100,7 @@ export default function LoginPage() {
         <form onSubmit={mfaToken ? handleMfa : handleLogin} className="mt-8 space-y-5">
           {error && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-              className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              className="flex items-center gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               {error}
             </motion.div>
@@ -102,8 +109,8 @@ export default function LoginPage() {
           {!mfaToken ? (
             <>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-navy-700">
-                  <Landmark className="mr-1.5 inline h-3.5 w-3.5 text-navy-400" />
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  <Landmark className="mr-1.5 inline h-3.5 w-3.5 text-muted-foreground" />
                   Email or CNIC
                 </label>
                 <Input type="text" required value={identifier}
@@ -113,7 +120,7 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-navy-700">
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
                   Password
                 </label>
                 <div className="relative">
@@ -121,7 +128,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-700 transition-colors">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -129,7 +136,7 @@ export default function LoginPage() {
             </>
           ) : (
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-navy-700">
+              <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Authentication Code
               </label>
               <Input type="text" required value={mfaCode}
@@ -142,14 +149,14 @@ export default function LoginPage() {
 
           <motion.button type="submit" disabled={loading}
             whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-            className="w-full rounded-xl bg-navy-900 px-4 py-3 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-50 transition-all shadow-lg shadow-navy-900/10">
+            className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-all shadow-lg shadow-primary/20">
             {loading ? "Signing in..." : mfaToken ? "Verify Code" : "Sign In"}
           </motion.button>
 
           {!mfaToken && (
-            <p className="text-center text-sm text-navy-500">
+            <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="font-semibold text-navy-900 hover:text-navy-700 transition-colors">
+              <Link href="/register" className="font-semibold text-foreground hover:text-primary transition-colors">
                 Create one
               </Link>
             </p>

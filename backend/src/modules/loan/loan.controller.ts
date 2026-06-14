@@ -73,6 +73,12 @@ const repay = async (req: Request, res: Response) => {
       if (!loan || loan.customer_id !== req.user.userId) {
         return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Access denied" } });
       }
+
+      const accountService = require("../account/account.service");
+      const sourceAccount = await accountService.getAccountById(Number(fromAccountId));
+      if (!sourceAccount || sourceAccount.customer_id !== req.user.userId) {
+        return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Source account does not belong to you" } });
+      }
     }
     const repayment = await loanService.makeRepayment(Number(req.params.id), Number(fromAccountId), Number(amount));
     await auditService.log({

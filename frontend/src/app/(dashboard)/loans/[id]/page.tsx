@@ -82,7 +82,7 @@ export default function LoanDetailPage({
     return (
       <div className="space-y-8">
         <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-48 w-full rounded-xl" />
+        <Skeleton className="h-48 w-full rounded-lg" />
       </div>
     );
   }
@@ -94,10 +94,10 @@ export default function LoanDetailPage({
       </Link>
 
       <FadeIn>
-        <motion.div whileHover={{ y: -2 }} className="card-premium p-8">
+        <motion.div whileHover={{ y: -2 }} className="card-easytrust p-8">
           {error && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-              className="mb-6 flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              className="mb-6 flex items-center gap-2.5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               {error}
             </motion.div>
@@ -105,7 +105,7 @@ export default function LoanDetailPage({
 
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-navy-100 text-navy-700">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-navy-100 text-navy-700">
                 <HandCoins className="h-7 w-7" />
               </div>
               <div>
@@ -115,12 +115,12 @@ export default function LoanDetailPage({
                 <p className="text-sm text-navy-500">{loan?.tenure_months} months @ {Number(loan?.interest_rate ?? 0)}% APR</p>
               </div>
             </div>
-            <span className={`rounded-xl border px-3 py-1.5 text-xs font-medium ${getStatusColor(loan?.status ?? "")}`}>
+            <span className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${getStatusColor(loan?.status ?? "")}`}>
               {loan?.status}
             </span>
           </div>
 
-          <div className="divider-gradient my-6" />
+          <div className="divider-brand my-6" />
 
           <div className="grid grid-cols-2 gap-8">
             <div>
@@ -149,7 +149,7 @@ export default function LoanDetailPage({
           </div>
 
           {loan?.rejection_reason && (
-            <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4">
+            <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
               <p className="text-xs font-medium text-red-500">Rejection Reason</p>
               <p className="mt-1 text-sm font-medium text-red-700">{loan.rejection_reason}</p>
             </div>
@@ -158,10 +158,10 @@ export default function LoanDetailPage({
           {loan?.repayments && loan.repayments.length > 0 && (
             <div className="mt-8">
               <h2 className="text-lg font-semibold text-navy-900 mb-4">Repayment Schedule</h2>
-              <div className="overflow-hidden rounded-xl border border-navy-200">
+              <div className="overflow-hidden rounded-lg border border-border">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-navy-200 bg-navy-50">
+                    <tr className="border-b border-border bg-navy-50">
                       <th className="px-4 py-3 text-left font-medium text-navy-600">Due</th>
                       <th className="px-4 py-3 text-right font-medium text-navy-600">Amount</th>
                       <th className="px-4 py-3 text-right font-medium text-navy-600">Principal</th>
@@ -172,7 +172,7 @@ export default function LoanDetailPage({
                   </thead>
                   <tbody>
                     {loan.repayments.map((r) => (
-                      <tr key={r.repayment_id} className="border-b border-navy-100 last:border-0 hover:bg-navy-50/50 transition-colors">
+                      <tr key={r.repayment_id} className="border-b border-border last:border-0 hover:bg-navy-50 transition-colors">
                         <td className="px-4 py-3 text-navy-600">{formatDate(r.due_date)}</td>
                         <td className="px-4 py-3 text-right font-mono text-navy-900 font-medium">{formatCurrency(Number(r.amount_paid))}</td>
                         <td className="px-4 py-3 text-right font-mono text-navy-700">{formatCurrency(Number(r.principal_component))}</td>
@@ -193,7 +193,7 @@ export default function LoanDetailPage({
             {loan?.status === "APPROVED" && isCustomer && (
               <motion.button onClick={handleRepay} disabled={loading}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                className="rounded-xl bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-50 transition-all shadow-lg shadow-navy-900/10">
+                className="rounded-lg bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-50 transition-all shadow-lg shadow-navy-900/10">
                 {loading ? "Processing..." : "Make Repayment"}
               </motion.button>
             )}
@@ -201,12 +201,12 @@ export default function LoanDetailPage({
               <>
                 <motion.button onClick={handleApprove} disabled={loading}
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                  className="rounded-xl bg-green-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-600 disabled:opacity-50 transition-all shadow-lg shadow-green-900/10">
+                  className="rounded-lg bg-green-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-green-600 disabled:opacity-50 transition-all shadow-lg shadow-green-900/10">
                   Approve Loan
                 </motion.button>
                 <motion.button onClick={() => setShowReject(!showReject)}
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                  className="rounded-xl border border-red-200 px-6 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50 transition-all">
+                  className="rounded-lg border border-red-200 px-6 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50 transition-all">
                   {showReject ? "Cancel" : "Reject"}
                 </motion.button>
               </>
@@ -219,7 +219,7 @@ export default function LoanDetailPage({
                 placeholder="Reason for rejection..." rows={3} />
               <motion.button onClick={handleReject} disabled={loading || !rejectReason}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                className="rounded-xl bg-red-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50 transition-all shadow-lg shadow-red-900/10">
+                className="rounded-lg bg-red-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50 transition-all shadow-lg shadow-red-900/10">
                 Confirm Rejection
               </motion.button>
             </motion.div>
@@ -231,5 +231,5 @@ export default function LoanDetailPage({
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-navy-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-navy-100 ${className}`} />;
 }

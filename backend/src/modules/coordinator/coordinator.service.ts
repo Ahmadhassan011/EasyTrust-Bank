@@ -1,5 +1,5 @@
 const prisma = require("../../config/prisma");
-const { redisClient } = require("../../config/redis");
+const { redisClient, isRedisReady } = require("../../config/redis");
 const crypto = require("crypto");
 
 const executeTwoPhaseCommit = async (data: {
@@ -10,6 +10,10 @@ const executeTwoPhaseCommit = async (data: {
   raast_network_id: number;
   description?: string;
 }) => {
+  if (!isRedisReady()) {
+    throw new Error("2PC coordinator is unavailable: Redis is not connected.");
+  }
+
   const { sender_account_id, receiver_bank_swift, receiver_account_number, amount, raast_network_id, description } = data;
   const lockKey = `lock:account:${sender_account_id}`;
   

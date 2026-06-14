@@ -30,7 +30,7 @@ export default function ReceiptPage({
   if (!tx) {
     return (
       <FadeIn>
-        <div className="card-premium p-16 text-center">
+        <div className="card-easytrust p-16 text-center">
           <Landmark className="mx-auto h-10 w-10 text-navy-200" />
           <p className="mt-4 text-navy-500">Transaction not found</p>
           <Link href="/transactions/transfer" className="mt-4 inline-block text-sm font-semibold text-navy-900 hover:text-navy-700">&larr; Back to Transactions</Link>
@@ -55,18 +55,18 @@ export default function ReceiptPage({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl border border-navy-200 px-4 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all"
+            className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all"
           >
             <Printer className="h-4 w-4" /> Print Receipt
           </motion.button>
         </div>
 
         <FadeIn>
-          <div className="card-premium overflow-hidden">
+          <div className="card-easytrust overflow-hidden">
             {/* Receipt Header */}
             <div className="bg-navy-900 px-8 py-6 text-white text-center print:bg-navy-900">
               <div className="flex justify-center mb-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
                   <Landmark className="h-5 w-5" />
                 </div>
               </div>
@@ -90,7 +90,7 @@ export default function ReceiptPage({
               <p className="mt-1 text-sm font-medium text-navy-400 capitalize">{tx.type.toLowerCase()}</p>
             </div>
 
-            <div className="divider-gradient mx-8" />
+            <div className="divider-brand mx-8" />
 
             {/* Transaction Details */}
             <div className="px-8 py-6 space-y-4">
@@ -110,13 +110,13 @@ export default function ReceiptPage({
               )}
             </div>
 
-            <div className="divider-gradient mx-8" />
+            <div className="divider-brand mx-8" />
 
             {/* Account Details */}
             <div className="px-8 py-6">
               {isDebit && (
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500 shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 text-red-500 shrink-0">
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
@@ -130,7 +130,7 @@ export default function ReceiptPage({
               )}
               {tx.to_account_id && (
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500 shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 shrink-0">
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
@@ -155,5 +155,5 @@ export default function ReceiptPage({
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-navy-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-navy-100 ${className}`} />;
 }

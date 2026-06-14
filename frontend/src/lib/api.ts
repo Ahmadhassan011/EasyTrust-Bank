@@ -65,19 +65,19 @@ api.interceptors.response.use(
         if (!stored) throw new Error("no tokens");
 
         const { refreshToken } = JSON.parse(stored);
-        const { data } = await axios.post(`${API_BASE}/auth/refresh`, {
+        const { data: res } = await axios.post(`${API_BASE}/auth/refresh`, {
           refreshToken,
         });
 
-        const newAuth = {
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken ?? refreshToken,
-          user: data.user,
-        };
+        const newAccessToken = res.data.accessToken;
+        if (!newAccessToken) throw new Error("no access token in refresh response");
+
+        const currentAuth = JSON.parse(localStorage.getItem("auth") || "{}");
+        const newAuth = { ...currentAuth, accessToken: newAccessToken };
         localStorage.setItem("auth", JSON.stringify(newAuth));
 
-        processQueue(null, data.accessToken);
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        processQueue(null, newAccessToken);
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);

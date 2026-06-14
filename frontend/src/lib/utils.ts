@@ -33,9 +33,9 @@ export function getStatusColor(status: string): string {
   const map: Record<string, string> = {
     ACTIVE: "text-green-600 bg-green-50 border-green-200",
     INACTIVE: "text-gray-600 bg-gray-50 border-gray-200",
-    DORMANT: "text-yellow-600 bg-yellow-50 border-yellow-200",
+    DORMANT: "text-navy-500 bg-navy-50 border-navy-200",
     CLOSED: "text-red-600 bg-red-50 border-red-200",
-    PENDING: "text-yellow-600 bg-yellow-50 border-yellow-200",
+    PENDING: "text-navy-500 bg-navy-50 border-navy-200",
     APPROVED: "text-blue-600 bg-blue-50 border-blue-200",
     REJECTED: "text-red-600 bg-red-50 border-red-200",
     COMPLETED: "text-green-600 bg-green-50 border-green-200",

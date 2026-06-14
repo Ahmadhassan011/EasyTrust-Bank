@@ -19,11 +19,11 @@ export default function CustomersPage() {
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-2 h-8 w-40" />
           </div>
-          <Skeleton className="h-10 w-36 rounded-xl" />
+          <Skeleton className="h-10 w-36 rounded-lg" />
         </div>
-        <div className="overflow-hidden rounded-xl border border-navy-200 bg-white">
+        <div className="overflow-hidden rounded-lg border border-border bg-background">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex items-center gap-4 border-b border-navy-100 p-4">
+            <div key={i} className="flex items-center gap-4 border-b border-border p-4">
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-4 w-40" />
               <Skeleton className="h-4 w-24" />
@@ -46,7 +46,7 @@ export default function CustomersPage() {
           </div>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link href="/customers/create"
-              className="inline-flex items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
+              className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
               <Plus className="h-4 w-4" />
               New Customer
             </Link>
@@ -55,10 +55,10 @@ export default function CustomersPage() {
       </FadeIn>
 
       <FadeIn>
-        <div className="overflow-hidden rounded-xl border border-navy-200 bg-white">
+        <div className="overflow-hidden rounded-lg border border-border bg-background">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-navy-200 bg-navy-50">
+              <tr className="border-b border-border bg-muted">
                 <th className="px-5 py-3.5 text-left font-semibold text-navy-600">Name</th>
                 <th className="px-5 py-3.5 text-left font-semibold text-navy-600">CNIC</th>
                 <th className="px-5 py-3.5 text-left font-semibold text-navy-600">Email</th>
@@ -74,7 +74,7 @@ export default function CustomersPage() {
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.03, duration: 0.3 }}
-                  className="border-b border-navy-100 last:border-0 hover:bg-navy-50/50 transition-colors"
+                  className="border-b border-border last:border-0 hover:bg-navy-100/50 transition-colors"
                 >
                   <td className="px-5 py-3.5">
                     <Link href={`/customers/${customer.customer_id}`}
@@ -115,5 +115,5 @@ export default function CustomersPage() {
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-navy-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-navy-100 ${className}`} />;
 }

@@ -56,8 +56,8 @@ const setupMfa = async (req: Request, res: Response) => {
 
 const enableMfa = async (req: Request, res: Response) => {
   try {
-    const { secret, totpCode } = req.body;
-    const result = await authService.enableMfa(req.user!.userId, secret, totpCode);
+    const { totpCode } = req.body;
+    const result = await authService.enableMfa(req.user!.userId, totpCode);
     await auditService.log({
       employeeId: req.user!.userId,
       entityType: "employee",

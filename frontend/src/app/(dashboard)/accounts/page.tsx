@@ -28,7 +28,7 @@ export default function AccountsPage() {
             <Skeleton className="h-4 w-24" />
             <Skeleton className="mt-2 h-8 w-32" />
           </div>
-          <Skeleton className="h-10 w-36 rounded-xl" />
+          <Skeleton className="h-10 w-36 rounded-lg" />
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => <CardSkeleton key={i} />)}
@@ -49,7 +49,7 @@ export default function AccountsPage() {
           {canCreate && (
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link href="/accounts/create"
-                className="inline-flex items-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
+                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
                 <Plus className="h-4 w-4" />
                 New Account
               </Link>
@@ -65,11 +65,11 @@ export default function AccountsPage() {
             <StaggerItem key={account.account_id}>
               <motion.div whileHover={{ y: -4 }} whileTap={{ scale: 0.98 }}>
                 <Link href={`/accounts/${account.account_id}`}
-                  className="group card-premium overflow-hidden block">
+                  className="group card-easytrust overflow-hidden block">
                   <div className="p-6 pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy-100 text-navy-700 transition-all group-hover:bg-navy-900 group-hover:text-white">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-navy-100 text-navy-700 transition-all group-hover:bg-navy-900 group-hover:text-white">
                           <Icon className="h-5 w-5" />
                         </div>
                         <div>
@@ -88,7 +88,7 @@ export default function AccountsPage() {
                     </p>
                   </div>
                   {account.customer && (
-                    <div className="border-t border-navy-100 px-6 py-3 flex items-center justify-between">
+                    <div className="border-t border-border px-6 py-3 flex items-center justify-between">
                       <p className="text-xs text-navy-400">
                         {account.customer.first_name} {account.customer.last_name}
                       </p>
@@ -102,7 +102,7 @@ export default function AccountsPage() {
         })}
         {(!accounts || accounts.length === 0) && (
           <StaggerItem>
-            <div className="col-span-full card-premium p-16 text-center">
+            <div className="col-span-full card-easytrust p-16 text-center">
               <Landmark className="mx-auto h-10 w-10 text-navy-200" />
               <p className="mt-4 text-sm font-medium text-navy-500">No accounts found</p>
             </div>
@@ -114,5 +114,5 @@ export default function AccountsPage() {
 }
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-navy-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-navy-100 ${className}`} />;
 }

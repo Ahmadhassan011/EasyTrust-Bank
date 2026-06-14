@@ -45,6 +45,7 @@ const makeRepayment = async (loanId: number, fromAccountId: number, amount: numb
   return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const loan = await tx.loan.findUnique({ where: { loan_id: loanId } });
     if (!loan) throw new Error("Loan not found");
+    if (loan.status === 'PAID') throw new Error("This loan has already been fully repaid");
     if (loan.status !== 'APPROVED') throw new Error("Loan is not active");
 
     const monthlyRate = loan.interest_rate.toNumber() / 12 / 100;
@@ -82,20 +83,30 @@ const makeRepayment = async (loanId: number, fromAccountId: number, amount: numb
     });
 
     const remainingBalance = outstandingBalance - principalComponent;
+    const isFinalPayment = remainingBalance <= 0;
 
-    return await tx.loanRepayment.create({
+    const repaymentRecord = await tx.loanRepayment.create({
       data: {
         loan_id: loanId,
         transaction_id: transaction.transaction_id,
         amount_paid: amount,
         principal_component: principalComponent < 0 ? 0 : principalComponent,
         interest_component: interestComponent,
-        remaining_balance: remainingBalance < 0 ? 0 : remainingBalance,
+        remaining_balance: isFinalPayment ? 0 : remainingBalance,
         due_date: new Date(),
         paid_date: new Date(),
         status: 'PAID'
       }
     });
+
+    if (isFinalPayment) {
+      await tx.loan.update({
+        where: { loan_id: loanId },
+        data: { status: 'PAID' },
+      });
+    }
+
+    return repaymentRecord;
   });
 };
 
