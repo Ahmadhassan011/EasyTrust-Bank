@@ -17,7 +17,7 @@ export default function CreateAccountPage() {
 
   const [form, setForm] = useState({
     customer_id: isCustomer ? String(user?.userId ?? "") : "",
-    branch_id: "1",
+    branch_id: "5",
     account_type: "SAVINGS",
     currency: "PKR",
     daily_limit: "50000",
@@ -43,8 +43,9 @@ export default function CreateAccountPage() {
         daily_limit: parseFloat(form.daily_limit),
       });
       router.push("/accounts");
-    } catch {
-      setError("Failed to create account. Please check the customer ID and try again.");
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || "Failed to create account. Please check the customer ID and try again.";
+      setError(msg);
     } finally {
       setLoading(false);
     }

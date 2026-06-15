@@ -94,6 +94,19 @@ export interface Branch {
   is_active: boolean;
 }
 
+export interface Employee {
+  employee_id: number;
+  branch_id: number;
+  first_name: string;
+  last_name: string;
+  role: Role;
+  email: string;
+  hire_date: string;
+  is_active: boolean;
+  mfa_enabled: boolean;
+  branch?: Branch;
+}
+
 export interface Transaction {
   transaction_id: number;
   from_account_id?: number;
@@ -173,6 +186,12 @@ export interface AuditLog {
   new_value?: Record<string, unknown>;
   logged_at: string;
   ip_address?: string;
+  employee?: {
+    employee_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
 }
 
 export interface MonthlyReport {

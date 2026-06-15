@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import type {
   Account,
   Customer,
+  Employee,
   Transaction,
   Loan,
   InterbankTransfer,
@@ -210,5 +211,66 @@ export function useInterbankTransfer(id: number) {
       return data.data;
     },
     enabled: !!id,
+  });
+}
+
+export function useEmployees() {
+  return useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<Employee[]>>("/employees");
+      return data.data;
+    },
+  });
+}
+
+export function useEmployee(id: number) {
+  return useQuery({
+    queryKey: ["employee", id],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<Employee>>(`/employees/${id}`);
+      return data.data;
+    },
+    enabled: !!id,
+  });
+}
+
+export function useCreateEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: Record<string, unknown>) => {
+      const { data } = await api.post<ApiResponse<Employee>>("/employees", body);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
+}
+
+export function useUpdateEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...body }: { id: number } & Record<string, unknown>) => {
+      const { data } = await api.put<ApiResponse<Employee>>(`/employees/${id}`, body);
+      return data.data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["employee", variables.id] });
+    },
+  });
+}
+
+export function useDeleteEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await api.delete<ApiResponse<{ message: string }>>(`/employees/${id}`);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
   });
 }

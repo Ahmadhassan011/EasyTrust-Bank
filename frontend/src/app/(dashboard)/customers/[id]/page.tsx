@@ -4,7 +4,7 @@ import { use, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useCustomer, useCustomerAccounts, useCustomerLoans, useDeleteCustomer } from "@/hooks/useApi";
+import { useCustomer, useCustomerAccounts, useCustomerLoans, useDeleteCustomer, useUpdateCustomer } from "@/hooks/useApi";
 import { useAuthStore } from "@/store/auth";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/utils";
 import { ArrowLeft, Landmark, HandCoins, User, Mail, Phone, MapPin, ArrowUpRight, Trash2 } from "lucide-react";
@@ -21,6 +21,7 @@ export default function CustomerDetailPage({
   const customerId = parseInt(id);
   const user = useAuthStore((s) => s.user);
   const deleteCustomer = useDeleteCustomer();
+  const updateCustomer = useUpdateCustomer();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -86,15 +87,32 @@ export default function CustomerDetailPage({
                 </span>
               </div>
             </div>
-            {user?.role === "ADMIN" && (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="touch-target inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-all"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              {(user?.role === "ADMIN" || user?.role === "MANAGER") && customer.kyc_status === "PENDING" && (
+                <button
+                  onClick={async () => {
+                    try {
+                      await updateCustomer.mutateAsync({ id: customerId, kyc_status: "VERIFIED" });
+                    } catch (err) {
+                      console.error("Failed to verify KYC", err);
+                    }
+                  }}
+                  disabled={updateCustomer.isPending}
+                  className="touch-target inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 transition-all"
+                >
+                  Verify KYC
+                </button>
+              )}
+              {user?.role === "ADMIN" && (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="touch-target inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-all"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
+              )}
+            </div>
           </div>
           <div className="divider-brand my-6" />
           <div className="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -5,7 +5,12 @@ const validate = (schema: any, source: "body" | "params" | "query" = "body") => 
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = schema.parse(req[source]);
-      req[source] = parsed;
+      // Express 5 makes req.query and req.params read-only getters.
+      // Only mutate req.body (which is writable). For params/query,
+      // we just validate — controllers read directly from req[source].
+      if (source === "body") {
+        req.body = parsed;
+      }
       next();
     } catch (error: any) {
       if (error instanceof ZodError) {
