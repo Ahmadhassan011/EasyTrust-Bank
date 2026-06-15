@@ -14,6 +14,46 @@ const setIdempotency = (key: string, result: any) => {
   idempotencyStore.set(key, { result, expiresAt: Date.now() + IDEMPOTENCY_TTL });
 };
 
+// ────────────────────────────────────────────────────────────
+// Helper: get today's total outgoing amount (all outgoing types)
+// Used for combined daily-limit enforcement (Fix 5)
+// ────────────────────────────────────────────────────────────
+const getTodayOutgoing = async (tx: any, accountId: number): Promise<number> => {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const result = await tx.transaction.aggregate({
+    where: {
+      from_account_id: accountId,
+      type: { in: ["WITHDRAWAL", "TRANSFER", "INTERBANK_TRANSFER"] },
+      status: { in: ["COMPLETED", "PENDING"] },
+      created_at: { gte: todayStart },
+    },
+    _sum: { amount: true },
+  });
+
+  return result._sum.amount?.toNumber() ?? 0;
+};
+
+// ────────────────────────────────────────────────────────────
+// Helper: enforce minimum balance (Fix 8)
+// Real banks require a minimum balance after every debit
+// ────────────────────────────────────────────────────────────
+const checkMinimumBalance = (account: any, amountToDebit: number) => {
+  const currentBalance = account.balance.toNumber();
+  const minimumBalance = account.minimum_balance?.toNumber() ?? 0;
+  const balanceAfter = currentBalance - amountToDebit;
+  if (balanceAfter < minimumBalance) {
+    throw new Error(
+      `Transaction would breach minimum balance of ${minimumBalance} ${account.currency}. ` +
+      `Your available balance for withdrawal is ${(currentBalance - minimumBalance).toFixed(2)} ${account.currency}.`
+    );
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// Transfer
+// ────────────────────────────────────────────────────────────
 const executeTransfer = async (
   fromAccountId: number,
   toAccountId: number,
@@ -37,33 +77,32 @@ const executeTransfer = async (
     const sender = await tx.account.findUnique({ where: { account_id: fromAccountId } });
     const receiver = await tx.account.findUnique({ where: { account_id: toAccountId } });
 
-    if (!sender || !receiver) {
-      throw new Error("Account not found");
+    if (!sender || !receiver) throw new Error("Account not found");
+    if (sender.status === "CLOSED") throw new Error("Sender account is closed");
+    if (receiver.status === "CLOSED") throw new Error("Receiver account is closed");
+    if (sender.status !== "ACTIVE") throw new Error("Sender account is not active");
+    if (receiver.status !== "ACTIVE") throw new Error("Receiver account is not active");
+
+    if (sender.balance.toNumber() < amount) throw new Error("Insufficient funds");
+
+    // Fix 5: Combined daily limit — includes withdrawals + transfers
+    const todayOutgoing = await getTodayOutgoing(tx, fromAccountId);
+    const dailyLimit = sender.daily_limit.toNumber();
+    if (todayOutgoing + amount > dailyLimit) {
+      throw new Error(`Daily transaction limit of ${dailyLimit} exceeded. Used: ${todayOutgoing.toFixed(2)}`);
     }
-    if (sender.status === "CLOSED") {
-      throw new Error("Sender account is closed");
-    }
-    if (receiver.status === "CLOSED") {
-      throw new Error("Receiver account is closed");
-    }
-    if (sender.status !== "ACTIVE") {
-      throw new Error("Sender account is not active");
-    }
-    if (receiver.status !== "ACTIVE") {
-      throw new Error("Receiver account is not active");
-    }
-    if (sender.balance.toNumber() < amount) {
-      throw new Error("Insufficient funds");
-    }
+
+    // Fix 8: Minimum balance check
+    checkMinimumBalance(sender, amount);
 
     await tx.account.update({
       where: { account_id: fromAccountId },
-      data: { balance: { decrement: amount } }
+      data: { balance: { decrement: amount } },
     });
 
     await tx.account.update({
       where: { account_id: toAccountId },
-      data: { balance: { increment: amount } }
+      data: { balance: { increment: amount } },
     });
 
     return await tx.transaction.create({
@@ -71,10 +110,10 @@ const executeTransfer = async (
         from_account_id: fromAccountId,
         to_account_id: toAccountId,
         amount,
-        type: 'TRANSFER',
-        status: 'COMPLETED',
-        description: description ?? null
-      }
+        type: "TRANSFER",
+        status: "COMPLETED",
+        description: description ?? null,
+      },
     });
   });
 
@@ -82,6 +121,9 @@ const executeTransfer = async (
   return result;
 };
 
+// ────────────────────────────────────────────────────────────
+// Deposit (no daily limit — incoming money, no minimum balance concern)
+// ────────────────────────────────────────────────────────────
 const executeDeposit = async (toAccountId: number, amount: number, description?: string, idempotencyKey?: string) => {
   if (idempotencyKey) {
     const existing = checkIdempotency(idempotencyKey);
@@ -98,17 +140,17 @@ const executeDeposit = async (toAccountId: number, amount: number, description?:
 
     await tx.account.update({
       where: { account_id: toAccountId },
-      data: { balance: { increment: amount } }
+      data: { balance: { increment: amount } },
     });
 
     return await tx.transaction.create({
       data: {
         to_account_id: toAccountId,
         amount,
-        type: 'DEPOSIT',
-        status: 'COMPLETED',
-        description: description ?? null
-      }
+        type: "DEPOSIT",
+        status: "COMPLETED",
+        description: description ?? null,
+      },
     });
   });
 
@@ -116,6 +158,9 @@ const executeDeposit = async (toAccountId: number, amount: number, description?:
   return result;
 };
 
+// ────────────────────────────────────────────────────────────
+// Withdrawal — daily limit + minimum balance
+// ────────────────────────────────────────────────────────────
 const executeWithdrawal = async (fromAccountId: number, amount: number, description?: string, idempotencyKey?: string) => {
   if (idempotencyKey) {
     const existing = checkIdempotency(idempotencyKey);
@@ -130,41 +175,31 @@ const executeWithdrawal = async (fromAccountId: number, amount: number, descript
     if (sender.status === "CLOSED") throw new Error("Account is closed");
     if (sender.status !== "ACTIVE") throw new Error("Account is not active");
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const todayWithdrawals = await tx.transaction.aggregate({
-      where: {
-        from_account_id: fromAccountId,
-        type: "WITHDRAWAL",
-        created_at: { gte: todayStart }
-      },
-      _sum: { amount: true }
-    });
-
+    // Fix 5: Combined daily limit (WITHDRAWAL + TRANSFER)
+    const todayOutgoing = await getTodayOutgoing(tx, fromAccountId);
     const dailyLimit = sender.daily_limit.toNumber();
-    const todayTotal = todayWithdrawals._sum.amount?.toNumber() ?? 0;
-    if (todayTotal + amount > dailyLimit) {
-      throw new Error(`Daily withdrawal limit of ${dailyLimit} exceeded`);
+    if (todayOutgoing + amount > dailyLimit) {
+      throw new Error(`Daily transaction limit of ${dailyLimit} exceeded. Used: ${todayOutgoing.toFixed(2)}`);
     }
 
-    if (sender.balance.toNumber() < amount) {
-      throw new Error("Insufficient funds");
-    }
+    if (sender.balance.toNumber() < amount) throw new Error("Insufficient funds");
+
+    // Fix 8: Minimum balance check
+    checkMinimumBalance(sender, amount);
 
     await tx.account.update({
       where: { account_id: fromAccountId },
-      data: { balance: { decrement: amount } }
+      data: { balance: { decrement: amount } },
     });
 
     return await tx.transaction.create({
       data: {
         from_account_id: fromAccountId,
         amount,
-        type: 'WITHDRAWAL',
-        status: 'COMPLETED',
-        description: description ?? null
-      }
+        type: "WITHDRAWAL",
+        status: "COMPLETED",
+        description: description ?? null,
+      },
     });
   });
 
@@ -177,10 +212,7 @@ const getTransactionHistory = async (
   options?: { limit?: number; offset?: number; fromDate?: string; toDate?: string }
 ) => {
   const where: any = {
-    OR: [
-      { from_account_id: accountId },
-      { to_account_id: accountId }
-    ]
+    OR: [{ from_account_id: accountId }, { to_account_id: accountId }],
   };
 
   if (options?.fromDate || options?.toDate) {
@@ -191,9 +223,9 @@ const getTransactionHistory = async (
 
   return await prisma.transaction.findMany({
     where,
-    orderBy: { created_at: 'desc' },
+    orderBy: { created_at: "desc" },
     take: options?.limit || 50,
-    skip: options?.offset || 0
+    skip: options?.offset || 0,
   });
 };
 

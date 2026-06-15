@@ -64,38 +64,40 @@ model Branch {
 }
 
 model Employee {
-  employee_id  Int       @id @default(autoincrement())
-  branch_id    Int
-  first_name   String
-  last_name    String
-  role         String
-  email        String    @unique
-  hire_date    DateTime  @db.Date
+  employee_id   Int       @id @default(autoincrement())
+  branch_id     Int
+  first_name    String
+  last_name     String
+  role          String
+  email         String    @unique
+  hire_date     DateTime  @db.Date
   password_hash String?
-  totp_secret  String?
-  mfa_enabled  Boolean   @default(false)
-  is_active    Boolean   @default(true)
-  branch       Branch    @relation(fields: [branch_id], references: [branch_id])
-  approvedLoans Loan[]
-  auditLogs    AuditLog[]
+  totp_secret   String?
+  mfa_enabled   Boolean   @default(false)
+  is_active     Boolean   @default(true)
+  branch        Branch    @relation(fields: [branch_id], references: [branch_id])
+  approvedLoans Loan[]    @relation("LoanApprovedBy")
+  rejectedLoans Loan[]    @relation("LoanRejectedBy")
+  auditLogs     AuditLog[]
 
   @@map("employee")
 }
 
 model Account {
-  account_id    Int       @id @default(autoincrement())
-  customer_id   Int
-  branch_id     Int
-  account_number String   @unique
-  account_type  String
-  balance       Decimal   @default(0.00) @db.Decimal(15, 2)
-  currency      String    @default("PKR") @db.VarChar(3)
-  status        String    @default("ACTIVE")
-  daily_limit   Decimal   @default(50000.00) @db.Decimal(10, 2)
-  opened_at     DateTime  @default(now())
-  customer      Customer  @relation(fields: [customer_id], references: [customer_id])
-  branch        Branch    @relation(fields: [branch_id], references: [branch_id])
-  cards         Card[]
+  account_id      Int       @id @default(autoincrement())
+  customer_id     Int
+  branch_id       Int
+  account_number  String    @unique
+  account_type    String
+  balance         Decimal   @default(0.00) @db.Decimal(15, 2)
+  currency        String    @default("PKR") @db.VarChar(3)
+  status          String    @default("ACTIVE")
+  daily_limit     Decimal   @default(50000.00) @db.Decimal(10, 2)
+  minimum_balance Decimal   @default(1000.00) @db.Decimal(10, 2)
+  opened_at       DateTime  @default(now())
+  customer        Customer  @relation(fields: [customer_id], references: [customer_id])
+  branch          Branch    @relation(fields: [branch_id], references: [branch_id])
+  cards           Card[]
   sentTransactions      Transaction[] @relation("FromAccount")
   receivedTransactions  Transaction[] @relation("ToAccount")
 
@@ -112,6 +114,7 @@ model Card {
   card_type    String
   expiry_date  DateTime  @db.Date
   cvv_hash     String
+  pin_hash     String?
   daily_limit  Decimal   @default(50000.00) @db.Decimal(10, 2)
   status       String    @default("ACTIVE")
   account      Account   @relation(fields: [account_id], references: [account_id])
@@ -122,22 +125,25 @@ model Card {
 }
 
 model Loan {
-  loan_id          Int       @id @default(autoincrement())
-  customer_id      Int
-  branch_id        Int
-  approved_by      Int?
-  principal_amount Decimal   @db.Decimal(15, 2)
-  interest_rate    Decimal   @db.Decimal(5, 2)
-  tenure_months    Int
-  loan_type        String
-  status           String    @default("PENDING")
-  rejection_reason  String?
-  disbursement_date DateTime? @db.Date
-  maturity_date     DateTime? @db.Date
-  customer         Customer  @relation(fields: [customer_id], references: [customer_id])
-  branch           Branch    @relation(fields: [branch_id], references: [branch_id])
-  approvedBy       Employee? @relation(fields: [approved_by], references: [employee_id])
-  repayments       LoanRepayment[]
+  loan_id               Int       @id @default(autoincrement())
+  customer_id           Int
+  branch_id             Int
+  disbursement_account_id Int?
+  approved_by           Int?
+  rejected_by           Int?
+  principal_amount      Decimal   @db.Decimal(15, 2)
+  interest_rate         Decimal   @db.Decimal(5, 2)
+  tenure_months         Int
+  loan_type             String
+  status                String    @default("PENDING")
+  rejection_reason      String?
+  disbursement_date     DateTime? @db.Date
+  maturity_date         DateTime? @db.Date
+  customer              Customer  @relation(fields: [customer_id], references: [customer_id])
+  branch                Branch    @relation(fields: [branch_id], references: [branch_id])
+  approvedBy            Employee? @relation("LoanApprovedBy", fields: [approved_by], references: [employee_id])
+  rejectedBy            Employee? @relation("LoanRejectedBy", fields: [rejected_by], references: [employee_id])
+  repayments            LoanRepayment[]
 
   @@index([customer_id])
   @@index([branch_id])

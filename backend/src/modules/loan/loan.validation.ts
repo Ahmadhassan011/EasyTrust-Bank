@@ -3,6 +3,7 @@ const { z } = require("zod");
 const applyLoanSchema = z.object({
   customer_id: z.number().positive(),
   branch_id: z.number().positive(),
+  disbursement_account_id: z.number().positive().optional(),
   principal_amount: z.number().positive(),
   interest_rate: z.number().min(0).max(100),
   tenure_months: z.number().int().positive(),

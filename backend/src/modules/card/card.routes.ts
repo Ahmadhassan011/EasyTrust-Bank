@@ -6,6 +6,8 @@ const {
   createCardSchema,
   updateCardStatusSchema,
   updateCardLimitSchema,
+  verifyPinSchema,
+  changePinSchema,
   cardIdParamSchema,
   accountIdParamSchema,
 } = require("./card.validation");
@@ -54,6 +56,23 @@ router.delete(
   authorize("ADMIN", "MANAGER"),
   validate(cardIdParamSchema, "params"),
   cardController.remove
+);
+
+// PIN endpoints — customer only (like ATM PIN operations)
+router.post(
+  "/:id/verify-pin",
+  authorize("CUSTOMER"),
+  validate(cardIdParamSchema, "params"),
+  validate(verifyPinSchema),
+  cardController.verifyPin
+);
+
+router.patch(
+  "/:id/change-pin",
+  authorize("CUSTOMER"),
+  validate(cardIdParamSchema, "params"),
+  validate(changePinSchema),
+  cardController.changePin
 );
 
 module.exports = router;

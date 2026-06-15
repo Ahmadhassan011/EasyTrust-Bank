@@ -31,12 +31,12 @@ const create = async (req: Request, res: Response) => {
       entityType: "card",
       entityId: card.card_id,
       action: "CREATE",
-      newValue: { ...card, cvv: "[REDACTED]" },
+      newValue: { ...card, cvv: "[REDACTED]", pin: "[REDACTED]" },
       ipAddress: req.ip,
     });
     res.status(201).json({ success: true, data: card });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: { code: "CREATE_FAILED", message: error.message } });
+    res.status(400).json({ success: false, error: { code: "CREATE_FAILED", message: error.message } });
   }
 };
 
@@ -143,6 +143,44 @@ const remove = async (req: Request, res: Response) => {
   }
 };
 
+const verifyPin = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    await requireOwnCard(req, id);
+    const valid = await cardService.verifyPin(id, req.body.pin);
+    res.json({ success: true, data: { valid } });
+  } catch (error: any) {
+    const status = error.statusCode || 400;
+    res.status(status).json({
+      success: false,
+      error: { code: status === 403 ? "FORBIDDEN" : "VERIFY_FAILED", message: error.message },
+    });
+  }
+};
+
+const changePin = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    await requireOwnCard(req, id);
+    await cardService.changePin(id, req.body.old_pin, req.body.new_pin);
+    await auditService.log({
+      employeeId: req.user?.type === "employee" ? req.user.userId : null,
+      entityType: "card",
+      entityId: id,
+      action: "CHANGE_PIN",
+      newValue: { message: "PIN changed" },
+      ipAddress: req.ip,
+    });
+    res.json({ success: true, data: { message: "PIN changed successfully" } });
+  } catch (error: any) {
+    const status = error.statusCode || 400;
+    res.status(status).json({
+      success: false,
+      error: { code: status === 403 ? "FORBIDDEN" : "CHANGE_PIN_FAILED", message: error.message },
+    });
+  }
+};
+
 module.exports = {
   create,
   getById,
@@ -150,4 +188,6 @@ module.exports = {
   updateStatus,
   updateLimit,
   remove,
+  verifyPin,
+  changePin,
 };

@@ -4,6 +4,7 @@ const createCardSchema = z.object({
   account_id: z.number().int().positive(),
   card_type: z.enum(["DEBIT", "CREDIT"]),
   daily_limit: z.number().positive().optional(),
+  pin: z.string().regex(/^\d{4}$/, "PIN must be a 4-digit number"),
 });
 
 const updateCardStatusSchema = z.object({
@@ -12,6 +13,15 @@ const updateCardStatusSchema = z.object({
 
 const updateCardLimitSchema = z.object({
   daily_limit: z.number().positive(),
+});
+
+const verifyPinSchema = z.object({
+  pin: z.string().regex(/^\d{4}$/, "PIN must be a 4-digit number"),
+});
+
+const changePinSchema = z.object({
+  old_pin: z.string().regex(/^\d{4}$/, "PIN must be a 4-digit number"),
+  new_pin: z.string().regex(/^\d{4}$/, "PIN must be a 4-digit number"),
 });
 
 const cardIdParamSchema = z.object({
@@ -26,6 +36,9 @@ module.exports = {
   createCardSchema,
   updateCardStatusSchema,
   updateCardLimitSchema,
+  verifyPinSchema,
+  changePinSchema,
   cardIdParamSchema,
   accountIdParamSchema,
 };
+
