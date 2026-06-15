@@ -127,7 +127,7 @@ export default function LandingPage() {
     <>
       <PublicNavbar />
 
-        <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-navy-900">
+        <section className="relative min-h-screen flex items-center overflow-hidden bg-navy-900">
           <GlowOrb className="top-1/4 -left-20 w-80 h-80 bg-navy-900/10" />
           <GlowOrb className="bottom-1/4 right-0 w-96 h-96 bg-navy-900/10" />
 
