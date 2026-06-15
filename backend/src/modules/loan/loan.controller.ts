@@ -95,6 +95,30 @@ const repay = async (req: Request, res: Response) => {
   }
 };
 
+const getOne = async (req: Request, res: Response) => {
+  try {
+    const loan = await loanService.getLoanWithDetails(Number(req.params.id));
+    if (!loan) {
+      return res.status(404).json({ success: false, error: { code: "NOT_FOUND", message: "Loan not found" } });
+    }
+    if (req.user?.type === "customer" && loan.customer_id !== req.user.userId) {
+      return res.status(403).json({ success: false, error: { code: "FORBIDDEN", message: "Access denied" } });
+    }
+    res.json({ success: true, data: loan });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { code: "FETCH_FAILED", message: error.message } });
+  }
+};
+
+const getAll = async (_req: Request, res: Response) => {
+  try {
+    const loans = await loanService.getAllLoans();
+    res.json({ success: true, data: loans });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { code: "FETCH_FAILED", message: error.message } });
+  }
+};
+
 const getHistory = async (req: Request, res: Response) => {
   try {
     requireOwnCustomer(req, Number(req.params.customerId));
@@ -106,4 +130,4 @@ const getHistory = async (req: Request, res: Response) => {
   }
 };
 
-module.exports = { apply, approve, reject, repay, getHistory };
+module.exports = { apply, approve, reject, repay, getOne, getAll, getHistory };

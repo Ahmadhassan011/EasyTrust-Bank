@@ -95,7 +95,7 @@ export default function InterbankSettlementPage({
 
           <motion.button onClick={checkStatus} disabled={checking}
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 disabled:opacity-50 transition-all">
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg touch-target border border-border px-4 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 disabled:opacity-50 transition-all">
             <RefreshCw className={`h-4 w-4 ${checking ? "animate-spin" : ""}`} />
             {checking ? "Checking..." : "Check Settlement Status"}
           </motion.button>

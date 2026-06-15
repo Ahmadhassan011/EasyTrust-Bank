@@ -14,10 +14,11 @@ export default function DashboardPage() {
   const isCustomer = user?.type === "customer";
   const isEmployee = user?.type === "employee";
 
-  const { data: allAccounts, isLoading: loadingAccounts } = useAccounts();
-  const { data: customerAccounts } = useCustomerAccounts(user?.userId ?? 0);
+  const { data: allAccounts, isLoading: loadingAllAccounts } = useAccounts();
+  const { data: customerAccounts, isLoading: loadingCustomerAccounts } = useCustomerAccounts(user?.userId ?? 0);
 
   const accounts = isCustomer ? customerAccounts : allAccounts;
+  const loadingAccounts = isCustomer ? loadingCustomerAccounts : loadingAllAccounts;
   const totalBalance = accounts?.reduce((sum, a) => sum + Number(a.balance), 0) ?? 0;
   const activeAccounts = accounts?.filter((a) => a.status === "ACTIVE").length ?? 0;
 
@@ -41,26 +42,28 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <FadeIn>
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm font-medium text-navy-400">Welcome back</p>
-            <h1 className="mt-1 text-3xl font-bold text-navy-900" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
-              {user?.firstName ?? "User"}
-            </h1>
-            <p className="mt-1 text-sm text-navy-400">
-              {activeAccounts} active account{activeAccounts !== 1 ? "s" : ""} &middot; {isEmployee ? "Employee" : "Customer"} dashboard
-            </p>
+        <motion.div whileHover={{ y: -2 }} className="gradient-card rounded-xl p-8 shadow-xl shadow-navy-900/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-white/50">Welcome back</p>
+              <h1 className="mt-1 text-3xl font-bold text-white" style={{ fontFamily: "var(--font-display)", fontWeight: 500 }}>
+                {user?.firstName ?? "User"}
+              </h1>
+              <p className="mt-1 text-sm text-white/40">
+                {activeAccounts} active account{activeAccounts !== 1 ? "s" : ""} &middot; {isEmployee ? "Employee" : "Customer"} dashboard
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs font-medium text-white/50 uppercase tracking-wider">Total Balance</p>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.2 }}
+                className="mt-1 denomination text-3xl text-white font-bold">
+                {formatCurrency(totalBalance)}
+              </motion.p>
+              <div className="denomination-rule ml-auto mt-3" />
+              <p className="mt-2 text-xs text-white/30 tracking-wider uppercase font-mono">{accounts?.length ?? 0} account{(accounts?.length ?? 0) !== 1 ? "s" : ""}</p>
+            </div>
           </div>
-          <motion.div whileHover={{ scale: 1.02 }} className="gradient-card rounded-lg px-7 py-5 text-right shadow-lg shadow-navy-900/20">
-            <p className="text-xs font-medium text-white/50">Total Balance</p>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.2 }}
-              className="mt-1 denomination text-2xl text-white">
-              {formatCurrency(totalBalance)}
-            </motion.p>
-            <div className="denomination-rule ml-auto mt-2" />
-            <p className="mt-2 text-xs text-white/30 tracking-wider uppercase font-mono">{accounts?.length ?? 0} accounts</p>
-          </motion.div>
-        </div>
+        </motion.div>
       </FadeIn>
 
       {isEmployee && (
@@ -168,7 +171,7 @@ export default function DashboardPage() {
               <Landmark className="mx-auto h-10 w-10 text-navy-200" />
               <p className="mt-4 text-sm font-medium text-navy-500">No accounts yet</p>
               <Link href="/accounts/create" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-navy-900 hover:text-navy-700 transition-colors">
-                <Plus className="h-4 w-4" /> Open an account
+                <Plus className="h-4 w-4" /> {isCustomer ? "Open an account" : "Create account"}
               </Link>
             </div>
           </FadeIn>
@@ -186,11 +189,11 @@ export default function DashboardPage() {
                 { href: "/transactions/transfer", label: "Transfer", icon: ArrowLeftRight },
                 { href: "/transactions/deposit", label: "Deposit", icon: TrendingUp },
                 { href: "/transactions/withdraw", label: "Withdraw", icon: Wallet },
-                { href: "/interbank/transfer", label: "Interbank", icon: Building2 },
+                ...(!isCustomer ? [{ href: "/interbank/transfer", label: "Interbank", icon: Building2 }] : []),
               ].map((action) => (
                 <motion.div key={action.href} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                   <Link href={action.href}
-                    className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 transition-all">
+                    className="touch-target inline-flex items-center gap-2 rounded-lg border border-border px-5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 transition-all">
                     <action.icon className="h-4 w-4" />
                     {action.label}
                   </Link>

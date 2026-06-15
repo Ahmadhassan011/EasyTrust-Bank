@@ -47,6 +47,7 @@ const registerCustomer = async (data: {
       cnic: data.cnic,
       email: data.email,
       password_hash,
+      kyc_status: "VERIFIED",
       phone: data.phone ?? null,
       address: data.address ?? null,
       dob: data.dob ? new Date(data.dob) : null,

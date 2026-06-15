@@ -7,15 +7,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/auth";
+import { useCustomerAccounts } from "@/hooks/useApi";
 import Link from "next/link";
 import { ArrowLeft, ArrowLeftRight, AlertCircle } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
-import { FormField, Input } from "@/components/ui/form-field";
+import { FormField, Input, Select } from "@/components/ui/form-field";
 
 const transferSchema = z.object({
-  from_account_id: z.coerce.number().int().positive("Required"),
-  to_account_id: z.coerce.number().int().positive("Required"),
-  amount: z.coerce.number().positive("Must be greater than 0"),
+  fromAccountId: z.number({ invalid_type_error: "Required" }).int().positive("Required"),
+  toAccountId: z.number({ invalid_type_error: "Required" }).int().positive("Required"),
+  amount: z.number({ invalid_type_error: "Required" }).positive("Must be greater than 0"),
   description: z.string().optional(),
 });
 
@@ -25,12 +27,11 @@ export default function TransferPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const isCustomer = user?.type === "customer";
+  const { data: myAccounts } = useCustomerAccounts(user?.userId ?? 0);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<TransferFormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<TransferFormValues>({
     resolver: zodResolver(transferSchema),
   });
 
@@ -38,15 +39,10 @@ export default function TransferPage() {
     setError("");
     setLoading(true);
     try {
-      const { data: res } = await api.post("/transactions/transfer", {
-        from_account_id: data.from_account_id,
-        to_account_id: data.to_account_id,
-        amount: data.amount,
-        description: data.description || undefined,
-      });
+      const { data: res } = await api.post("/transactions/transfer", data);
       router.push(`/transactions/receipt/${res.data.transaction_id}`);
     } catch {
-      setError("Transfer failed. Check account IDs and balance.");
+      setError("Transfer failed. Check balance and that the destination account exists.");
     } finally {
       setLoading(false);
     }
@@ -56,8 +52,7 @@ export default function TransferPage() {
     <div className="mx-auto max-w-lg space-y-6">
       <div>
         <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-navy-400 hover:text-navy-700 transition-all">
-          <ArrowLeft className="h-4 w-4" />
-          Dashboard
+          <ArrowLeft className="h-4 w-4" /> Dashboard
         </Link>
       </div>
 
@@ -82,20 +77,31 @@ export default function TransferPage() {
               </motion.div>
             )}
 
-            <FormField label="From Account ID" error={errors.from_account_id?.message}>
-              <Input type="number" {...register("from_account_id")} />
+            <FormField label="From Account" error={errors.fromAccountId?.message}>
+              {isCustomer && myAccounts?.length ? (
+                <Select {...register("fromAccountId", { valueAsNumber: true })}>
+                  <option value="">Select your account</option>
+                  {myAccounts.map((a) => (
+                    <option key={a.account_id} value={a.account_id}>
+                      {a.account_type.toLowerCase().replace("_", " ")} — {a.account_number.slice(0, 12)}… (PKR {Number(a.balance).toLocaleString()})
+                    </option>
+                  ))}
+                </Select>
+              ) : (
+                <Input type="number" placeholder="Account ID" {...register("fromAccountId", { valueAsNumber: true })} />
+              )}
             </FormField>
 
-            <FormField label="To Account ID" error={errors.to_account_id?.message}>
-              <Input type="number" {...register("to_account_id")} />
+            <FormField label="To Account ID" error={errors.toAccountId?.message}>
+              <Input type="number" placeholder="Recipient account ID" {...register("toAccountId", { valueAsNumber: true })} />
             </FormField>
 
             <FormField label="Amount (PKR)" error={errors.amount?.message}>
-              <Input type="number" step="0.01" {...register("amount")} placeholder="0.00" />
+              <Input type="number" step="0.01" placeholder="0.00" {...register("amount", { valueAsNumber: true })} />
             </FormField>
 
             <FormField label="Description (optional)" error={errors.description?.message}>
-              <Input type="text" {...register("description")} placeholder="What's this for?" />
+              <Input type="text" placeholder="What's this for?" {...register("description")} />
             </FormField>
 
             <motion.button type="submit" disabled={loading}

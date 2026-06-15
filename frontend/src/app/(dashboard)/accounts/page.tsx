@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useAccounts } from "@/hooks/useApi";
+import { useAccounts, useCustomerAccounts } from "@/hooks/useApi";
 import { formatCurrency, getStatusColor } from "@/lib/utils";
 import Link from "next/link";
 import { Landmark, Plus, Wallet, PiggyBank, ArrowUpRight } from "lucide-react";
@@ -16,9 +16,15 @@ const typeIcons: Record<string, typeof Wallet> = {
 };
 
 export default function AccountsPage() {
-  const { data: accounts, isLoading } = useAccounts();
   const user = useAuthStore((s) => s.user);
-  const canCreate = user?.role === "TELLER" || user?.role === "MANAGER" || user?.role === "ADMIN";
+  const isCustomer = user?.type === "customer";
+  const canCreate = !isCustomer;
+
+  const { data: allAccounts, isLoading: loadingAll } = useAccounts();
+  const { data: myAccounts, isLoading: loadingMine } = useCustomerAccounts(user?.userId ?? 0);
+
+  const accounts = isCustomer ? myAccounts : allAccounts;
+  const isLoading = isCustomer ? loadingMine : loadingAll;
 
   if (isLoading) {
     return (
@@ -49,7 +55,7 @@ export default function AccountsPage() {
           {canCreate && (
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link href="/accounts/create"
-                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
+                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-3 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
                 <Plus className="h-4 w-4" />
                 New Account
               </Link>

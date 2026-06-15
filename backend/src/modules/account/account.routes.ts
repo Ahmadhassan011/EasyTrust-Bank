@@ -6,7 +6,7 @@ const { createAccountSchema, updateAccountStatusSchema, accountIdParamSchema, cu
 
 const router = Router();
 
-router.post("/", authorize("TELLER", "MANAGER", "ADMIN"), validate(createAccountSchema), accountController.create);
+router.post("/", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), validate(createAccountSchema), accountController.create);
 router.get("/", authorize("ADMIN", "MANAGER"), accountController.getAll);
 router.get("/:id", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN", "AUDITOR"), validate(accountIdParamSchema, "params"), accountController.getById);
 router.get("/customer/:customerId", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN", "AUDITOR"), validate(customerIdParamSchema, "params"), accountController.getByCustomer);

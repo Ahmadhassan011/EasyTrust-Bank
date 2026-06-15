@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/store/auth";
-import { useCustomerLoans } from "@/hooks/useApi";
+import { useCustomerLoans, useLoans } from "@/hooks/useApi";
 import Link from "next/link";
 import { HandCoins, Plus, ArrowUpRight } from "lucide-react";
 import { formatCurrency, getStatusColor } from "@/lib/utils";
@@ -14,7 +14,11 @@ export default function LoansPage() {
   const customerId = user?.userId ?? 0;
   const isCustomer = user?.type === "customer";
 
-  const { data: loans, isLoading } = useCustomerLoans(customerId);
+  const { data: customerLoans, isLoading: loadingCustomer } = useCustomerLoans(customerId);
+  const { data: allLoans, isLoading: loadingAll } = useLoans();
+
+  const loans = isCustomer ? customerLoans : allLoans;
+  const isLoading = isCustomer ? loadingCustomer : loadingAll;
 
   if (isLoading) {
     return (
@@ -45,7 +49,7 @@ export default function LoansPage() {
           {isCustomer && (
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link href="/loans/apply"
-                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
+                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-3 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
                 <Plus className="h-4 w-4" />
                 Apply for Loan
               </Link>

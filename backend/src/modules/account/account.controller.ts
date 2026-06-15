@@ -14,6 +14,9 @@ const requireOwnAccount = async (req: Request, accountId: number) => {
 
 const create = async (req: Request, res: Response) => {
   try {
+    if (req.user?.type === "customer") {
+      req.body.customer_id = req.user.userId;
+    }
     const account = await accountService.createAccount(req.body);
     await auditService.log({
       employeeId: req.user?.type === "employee" ? req.user.userId : null,

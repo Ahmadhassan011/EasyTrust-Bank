@@ -7,7 +7,7 @@ const { transferSchema, depositSchema, withdrawSchema, historyQuerySchema } = re
 const router = Router();
 
 router.post("/transfer", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), validate(transferSchema), transactionController.transfer);
-router.post("/deposit", authorize("TELLER", "MANAGER", "ADMIN"), validate(depositSchema), transactionController.deposit);
+router.post("/deposit", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), validate(depositSchema), transactionController.deposit);
 router.post("/withdraw", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN"), validate(withdrawSchema), transactionController.withdraw);
 router.get("/history/:accountId", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN", "AUDITOR"), validate(historyQuerySchema, "query"), transactionController.history);
 router.get("/:id", authorize("CUSTOMER", "TELLER", "MANAGER", "ADMIN", "AUDITOR"), transactionController.getById);

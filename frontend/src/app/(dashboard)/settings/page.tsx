@@ -135,7 +135,7 @@ function CustomerSettings({ userId }: { userId: number }) {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={updateMutation.isPending}
-                className="rounded-lg bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all"
+                className="rounded-lg touch-target bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all"
               >
                 {updateMutation.isPending ? "Saving..." : "Save Changes"}
               </motion.button>

@@ -4,19 +4,24 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/auth";
+import { useCustomerAccounts } from "@/hooks/useApi";
 import Link from "next/link";
 import { ArrowLeft, Building2, AlertCircle } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
-import { FormField, Input } from "@/components/ui/form-field";
+import { FormField, Input, Select } from "@/components/ui/form-field";
 
 export default function InterbankTransferPage() {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const isCustomer = user?.type === "customer";
+  const { data: myAccounts } = useCustomerAccounts(user?.userId ?? 0);
+
   const [form, setForm] = useState({
-    from_account_id: "",
+    fromAccountId: "",
     amount: "",
-    receiver_bank_swift: "",
-    receiver_account: "",
-    receiver_name: "",
+    receiverBankSwift: "",
+    raastReference: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,14 +34,14 @@ export default function InterbankTransferPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const { data } = await api.post("/interbank/transfer", {
-        from_account_id: parseInt(form.from_account_id),
+        fromAccountId: parseInt(form.fromAccountId),
         amount: parseFloat(form.amount),
-        receiver_bank_swift: form.receiver_bank_swift,
-        receiver_account: form.receiver_account,
-        receiver_name: form.receiver_name,
+        raastNetworkId: 1,
+        senderBankSwift: "EASYPKKHI",
+        receiverBankSwift: form.receiverBankSwift.trim().toUpperCase(),
+        raastReference: form.raastReference || undefined,
       });
       router.push(`/interbank/${data.data?.transfer_id ?? ""}`);
     } catch {
@@ -62,7 +67,7 @@ export default function InterbankTransferPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-navy-900">Interbank Transfer</h1>
-              <p className="text-sm text-navy-500">Send money to another bank via the Raast network.</p>
+              <p className="text-sm text-navy-500">Send money to another bank via Raast.</p>
             </div>
           </div>
 
@@ -75,9 +80,21 @@ export default function InterbankTransferPage() {
               </motion.div>
             )}
 
-            <FormField label="From Account ID">
-              <Input type="number" required value={form.from_account_id}
-                onChange={(e) => update("from_account_id", e.target.value)} />
+            <FormField label="From Account">
+              {isCustomer && myAccounts?.length ? (
+                <Select value={form.fromAccountId} onChange={(e) => update("fromAccountId", e.target.value)} required>
+                  <option value="">Select your account</option>
+                  {myAccounts.map((a) => (
+                    <option key={a.account_id} value={a.account_id}>
+                      {a.account_type.toLowerCase().replace("_", " ")} — {a.account_number.slice(0, 12)}… (PKR {Number(a.balance).toLocaleString()})
+                    </option>
+                  ))}
+                </Select>
+              ) : (
+                <Input type="number" required value={form.fromAccountId}
+                  onChange={(e) => update("fromAccountId", e.target.value)}
+                  placeholder="Account ID" />
+              )}
             </FormField>
 
             <FormField label="Amount (PKR)">
@@ -86,22 +103,23 @@ export default function InterbankTransferPage() {
                 placeholder="0.00" />
             </FormField>
 
-            <FormField label="Receiver Bank SWIFT">
-              <Input type="text" required value={form.receiver_bank_swift}
-                onChange={(e) => update("receiver_bank_swift", e.target.value)}
-                placeholder="HBLPKKA"
+            <FormField label="Receiver Bank SWIFT Code">
+              <Input type="text" required value={form.receiverBankSwift}
+                onChange={(e) => update("receiverBankSwift", e.target.value)}
+                placeholder="e.g. HBLPKKA0001"
+                maxLength={11}
                 className="font-mono uppercase" />
             </FormField>
 
-            <FormField label="Receiver Account">
-              <Input type="text" required value={form.receiver_account}
-                onChange={(e) => update("receiver_account", e.target.value)} />
+            <FormField label="Raast Reference (optional)">
+              <Input type="text" value={form.raastReference}
+                onChange={(e) => update("raastReference", e.target.value)}
+                placeholder="Raast reference number" />
             </FormField>
 
-            <FormField label="Receiver Name">
-              <Input type="text" required value={form.receiver_name}
-                onChange={(e) => update("receiver_name", e.target.value)} />
-            </FormField>
+            <div className="rounded-lg bg-navy-50 border border-navy-100 px-4 py-3 text-xs text-navy-500">
+              Sender bank: <span className="font-mono font-semibold text-navy-700">EASYPKKHI</span> · Raast Network: Main
+            </div>
 
             <motion.button type="submit" disabled={loading}
               whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}

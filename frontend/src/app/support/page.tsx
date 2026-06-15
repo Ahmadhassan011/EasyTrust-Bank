@@ -210,7 +210,7 @@ export default function SupportHubPage() {
               </div>
               <Link
                 href="/support/contact"
-                className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex shrink-0 items-center gap-2 rounded-lg touch-target bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 Contact Support
                 <ArrowRight className="h-4 w-4" />

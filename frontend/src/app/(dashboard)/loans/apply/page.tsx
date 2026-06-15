@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/auth";
 import Link from "next/link";
 import { ArrowLeft, HandCoins, AlertCircle } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
@@ -14,15 +15,16 @@ import { FormField, Input, Select } from "@/components/ui/form-field";
 
 const loanSchema = z.object({
   loan_type: z.enum(["PERSONAL", "HOME", "AUTO", "EDUCATION"]),
-  principal_amount: z.coerce.number().positive("Must be greater than 0"),
-  interest_rate: z.coerce.number().min(0),
-  tenure_months: z.coerce.number().int().positive("Must be greater than 0"),
+  principal_amount: z.number({ invalid_type_error: "Required" }).positive("Must be greater than 0"),
+  interest_rate: z.number({ invalid_type_error: "Required" }).min(0),
+  tenure_months: z.number({ invalid_type_error: "Required" }).int().positive("Must be greater than 0"),
 });
 
 type LoanFormValues = z.infer<typeof loanSchema>;
 
 export default function ApplyLoanPage() {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +46,8 @@ export default function ApplyLoanPage() {
     setLoading(true);
     try {
       await api.post("/loans/apply", {
+        customer_id: user?.userId,
+        branch_id: 1,
         loan_type: data.loan_type,
         principal_amount: data.principal_amount,
         interest_rate: data.interest_rate,
@@ -96,15 +100,15 @@ export default function ApplyLoanPage() {
             </FormField>
 
             <FormField label="Principal Amount (PKR)" error={errors.principal_amount?.message}>
-              <Input type="number" step="0.01" {...register("principal_amount")} placeholder="e.g. 500000" />
+              <Input type="number" step="0.01" {...register("principal_amount", { valueAsNumber: true })} placeholder="e.g. 500000" />
             </FormField>
 
             <FormField label="Interest Rate (%)" error={errors.interest_rate?.message}>
-              <Input type="number" step="0.01" {...register("interest_rate")} />
+              <Input type="number" step="0.01" {...register("interest_rate", { valueAsNumber: true })} />
             </FormField>
 
             <FormField label="Tenure (months)" error={errors.tenure_months?.message}>
-              <Input type="number" {...register("tenure_months")} placeholder="e.g. 12" />
+              <Input type="number" {...register("tenure_months", { valueAsNumber: true })} placeholder="e.g. 12" />
             </FormField>
 
             <motion.button type="submit" disabled={loading}

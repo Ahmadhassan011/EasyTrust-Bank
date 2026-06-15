@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/store/auth";
 import { easeOut } from "@/components/ui/animations";
+import { useSidebarStore } from "@/store/sidebar";
 import { useHydrated } from "@/hooks/useHydrated";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
@@ -13,6 +14,7 @@ import { Breadcrumbs } from "./Breadcrumbs";
 export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, logout } = useAuthStore();
+  const setSidebarOpen = useSidebarStore((s) => s.setSidebarOpen);
   const hydrated = useHydrated();
 
   useEffect(() => {
@@ -21,24 +23,19 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
     }
   }, [hydrated, isAuthenticated, router]);
 
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [setSidebarOpen]);
+
   if (!hydrated || !isAuthenticated) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          className="flex flex-col items-center gap-3"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="flex h-12 w-12 items-center justify-center rounded-lg bg-navy-900"
-          >
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-navy-900">
             <span className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>E</span>
-          </motion.div>
+          </div>
           <div className="text-sm text-navy-400">Loading...</div>
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -48,7 +45,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
       <Sidebar onLogout={() => { logout(); router.push("/login"); }} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto bg-gradient-to-b from-background to-white p-6">
+        <main className="flex-1 overflow-y-auto bg-gradient-to-b from-background to-white p-4 lg:p-6">
           <Breadcrumbs />
           <AnimatePresence mode="wait">
             <motion.div

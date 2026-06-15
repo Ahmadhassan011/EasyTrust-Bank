@@ -137,7 +137,7 @@ export default function MfaPage() {
             </div>
             <h2 className="text-xl font-bold text-navy-900 mb-2">{message}</h2>
             <p className="text-sm text-navy-400 mb-6">Your security settings have been updated.</p>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} className="rounded-lg bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all">
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} className="rounded-lg touch-target bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all">
               Done
             </motion.button>
           </div>
@@ -176,7 +176,7 @@ export default function MfaPage() {
                     <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
                     <p className="text-sm text-emerald-800">MFA is active on your account. You can disable it below.</p>
                   </div>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setStep("verify_disable")} className="rounded-lg bg-red-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-all">
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setStep("verify_disable")} className="rounded-lg touch-target bg-red-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-all">
                     Disable MFA
                   </motion.button>
                 </div>
@@ -194,7 +194,7 @@ export default function MfaPage() {
                       </ol>
                     </div>
                   </div>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSetup} disabled={loading} className="rounded-lg bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all">
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSetup} disabled={loading} className="rounded-lg touch-target bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all">
                     {loading ? "Generating..." : "Set up MFA"}
                   </motion.button>
                 </div>
@@ -249,10 +249,10 @@ export default function MfaPage() {
               )}
 
               <div className="flex gap-3">
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleEnable} disabled={loading} className="rounded-lg bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleEnable} disabled={loading} className="rounded-lg touch-target bg-navy-900 px-8 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-60 transition-all">
                   {loading ? "Verifying..." : "Enable MFA"}
                 </motion.button>
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} disabled={loading} className="rounded-lg border border-border px-6 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} disabled={loading} className="rounded-lg touch-target border border-border px-6 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all">
                   Cancel
                 </motion.button>
               </div>
@@ -290,10 +290,10 @@ export default function MfaPage() {
               )}
 
               <div className="flex gap-3">
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleDisable} disabled={loading} className="rounded-lg bg-red-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60 transition-all">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleDisable} disabled={loading} className="rounded-lg touch-target bg-red-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-60 transition-all">
                   {loading ? "Verifying..." : "Disable MFA"}
                 </motion.button>
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} disabled={loading} className="rounded-lg border border-border px-6 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset} disabled={loading} className="rounded-lg touch-target border border-border px-6 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50 transition-all">
                   Cancel
                 </motion.button>
               </div>

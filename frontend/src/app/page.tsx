@@ -31,9 +31,9 @@ const securityItems = [
   { icon: Network, title: "Secure Network", desc: "Private encrypted channels between all 12 branches. Real-time intrusion detection and automated threat response." },
 ];
 
-function FadeUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function FadeUp({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5, delay, ease: easeOut }}>
+    <motion.div className={className} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5, delay, ease: easeOut }}>
       {children}
     </motion.div>
   );
@@ -131,12 +131,12 @@ export default function LandingPage() {
           <GlowOrb className="top-1/4 -left-20 w-80 h-80 bg-navy-900/10" />
           <GlowOrb className="bottom-1/4 right-0 w-96 h-96 bg-navy-900/10" />
 
-          <div className="mx-auto max-w-7xl px-6 py-32 md:py-40 relative z-10 w-full">
+          <div className="mx-auto max-w-7xl px-6 py-20 sm:py-32 md:py-40 relative z-10 w-full">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
 
 
-                <h1 className="text-5xl sm:text-6xl md:text-7xl leading-[1.05] text-white" style={{ fontFamily: "var(--font-display)", fontWeight: 470 }}>
+                <h1 className="text-4xl sm:text-5xl md:text-7xl leading-[1.1] md:leading-[1.05] text-white font-balance" style={{ fontFamily: "var(--font-display)", fontWeight: 470 }}>
                   Banking across
                   <br />
                   <span className="text-navy-300">branches,</span> not silos.
@@ -171,11 +171,11 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
 
-      <section className="bg-background py-24 md:py-32 relative overflow-hidden">
+      <section className="bg-background py-16 sm:py-24 md:py-32 relative overflow-hidden">
         <GlowOrb className="bottom-0 -left-20 w-80 h-80 bg-primary/5" />
         <div className="mx-auto max-w-7xl px-6 relative z-10">
           <FadeUp>
-            <div className="mb-16">
+            <div className="mb-12 sm:mb-16">
               <span className="serial-number text-muted-foreground">02</span>
               <h2 className="mt-3 text-3xl sm:text-4xl text-foreground" style={{ fontFamily: "var(--font-display)", fontWeight: 460 }}>
                 Built different
@@ -186,16 +186,16 @@ export default function LandingPage() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {features.map((feature, i) => (
-              <FadeUp key={feature.title} delay={0.1 * i}>
+              <FadeUp key={feature.title} delay={0.1 * i} className="h-full">
                 <motion.div
                   whileHover={{ y: -3 }}
-                  className="group bg-card border border-border rounded-xl p-7 transition-all hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
+                  className="group bg-card border border-border rounded-xl p-7 transition-all hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-all group-hover:bg-primary/90">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-all group-hover:bg-primary/90 shrink-0">
                     <feature.icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-6 text-lg font-semibold text-foreground">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.desc}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground flex-1">{feature.desc}</p>
                 </motion.div>
               </FadeUp>
             ))}
@@ -203,11 +203,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-card py-24 md:py-32 relative overflow-hidden">
+      <section className="bg-card py-16 sm:py-24 md:py-32 relative overflow-hidden">
         <GlowOrb className="top-1/3 right-0 w-64 h-64 bg-primary/5" />
         <div className="mx-auto max-w-7xl px-6 relative z-10">
           <FadeUp>
-            <div className="mb-16">
+            <div className="mb-12 sm:mb-16">
               <span className="serial-number text-muted-foreground">03</span>
               <h2 className="mt-3 text-3xl sm:text-4xl text-foreground" style={{ fontFamily: "var(--font-display)", fontWeight: 460 }}>
                 Security & trust
@@ -218,16 +218,16 @@ export default function LandingPage() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {securityItems.map((item, i) => (
-              <FadeUp key={item.title} delay={0.1 * i}>
+              <FadeUp key={item.title} delay={0.1 * i} className="h-full">
                 <motion.div
                   whileHover={{ y: -3 }}
-                  className="bg-background border border-border rounded-xl p-7 transition-all hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"
+                  className="bg-background border border-border rounded-xl p-7 transition-all hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
                     <item.icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-6 text-lg font-semibold text-foreground">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground flex-1">{item.desc}</p>
                 </motion.div>
               </FadeUp>
             ))}
@@ -235,10 +235,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-background py-24 md:py-32 relative overflow-hidden">
+      <section className="bg-background py-16 sm:py-24 md:py-32 relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6">
           <FadeUp>
-            <div className="mb-16">
+            <div className="mb-12 sm:mb-16">
               <span className="serial-number text-muted-foreground">04</span>
               <h2 className="mt-3 text-3xl sm:text-4xl text-foreground" style={{ fontFamily: "var(--font-display)", fontWeight: 460 }}>
                 Our services
@@ -249,16 +249,16 @@ export default function LandingPage() {
 
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {services.map((service, i) => (
-              <FadeUp key={service.title} delay={0.08 * i}>
+              <FadeUp key={service.title} delay={0.08 * i} className="h-full">
                 <motion.div
                   whileHover={{ y: -3 }}
-                  className="group bg-card border border-border rounded-xl p-6 transition-all hover:border-primary/20 hover:shadow-md"
+                  className="group bg-card border border-border rounded-xl p-6 transition-all hover:border-primary/20 hover:shadow-md h-full flex flex-col"
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-background text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-background text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground shrink-0">
                     <service.icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-5 font-semibold text-foreground">{service.title}</h3>
-                  <p className="mt-1.5 text-sm text-muted-foreground">{service.desc}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground flex-1">{service.desc}</p>
                 </motion.div>
               </FadeUp>
             ))}
@@ -266,7 +266,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden py-20 md:py-28 bg-muted">
+      <section className="relative overflow-hidden py-16 sm:py-20 md:py-28 bg-muted">
         <GlowOrb className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5" />
         <div className="mx-auto max-w-7xl px-6 text-center relative z-10">
           <FadeUp>

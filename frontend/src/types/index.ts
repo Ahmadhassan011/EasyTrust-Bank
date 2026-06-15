@@ -20,10 +20,20 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+export interface RawBackendUser {
+  customer_id?: number;
+  employee_id?: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  [key: string]: unknown;
+}
+
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: User;
+  user: RawBackendUser;
+  role: Role;
   mfaToken?: string;
   requiresMfa?: boolean;
 }

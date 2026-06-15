@@ -117,6 +117,26 @@ const getLoansByCustomer = async (customerId: number) => {
   });
 };
 
+const getAllLoans = async () => {
+  return await prisma.loan.findMany({
+    include: {
+      repayments: true,
+      customer: { select: { first_name: true, last_name: true, email: true } },
+    },
+    orderBy: { loan_id: "desc" },
+  });
+};
+
+const getLoanWithDetails = async (loanId: number) => {
+  return await prisma.loan.findUnique({
+    where: { loan_id: loanId },
+    include: {
+      repayments: { orderBy: { repayment_id: "asc" } },
+      customer: { select: { first_name: true, last_name: true, email: true } },
+    },
+  });
+};
+
 const getLoanById = async (loanId: number) => {
   return await prisma.loan.findUnique({
     where: { loan_id: loanId }
@@ -129,6 +149,8 @@ module.exports = {
   approveLoan,
   rejectLoan,
   makeRepayment,
+  getAllLoans,
   getLoansByCustomer,
-  getLoanById
+  getLoanWithDetails,
+  getLoanById,
 };

@@ -51,14 +51,14 @@ export default function AuditPage() {
             {actions.filter(Boolean).map((a) => <option key={a} value={a}>{a}</option>)}
           </Select>
           <input type="date" value={filters.startDate} onChange={(e) => update("startDate", e.target.value)}
-            className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-navy-700 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all" />
+            className="rounded-lg touch-target border border-border bg-background px-4 py-2.5 text-sm text-navy-700 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all" />
           <input type="date" value={filters.endDate} onChange={(e) => update("endDate", e.target.value)}
-            className="rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-navy-700 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all" />
+            className="rounded-lg touch-target border border-border bg-background px-4 py-2.5 text-sm text-navy-700 focus:border-navy-900 focus:outline-none focus:ring-2 focus:ring-navy-900/10 transition-all" />
         </div>
       </FadeIn>
 
       <FadeIn delay={0.2}>
-        <div className="overflow-hidden rounded-lg border border-border bg-background">
+        <div className="table-responsive rounded-lg border border-border bg-background">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-background">

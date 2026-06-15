@@ -8,11 +8,15 @@ import Link from "next/link";
 import { ArrowLeft, Landmark, AlertCircle } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
 import { FormField, Input, Select } from "@/components/ui/form-field";
+import { useAuthStore } from "@/store/auth";
 
 export default function CreateAccountPage() {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const isCustomer = user?.type === "customer";
+
   const [form, setForm] = useState({
-    customer_id: "",
+    customer_id: isCustomer ? String(user?.userId ?? "") : "",
     branch_id: "1",
     account_type: "SAVINGS",
     currency: "PKR",
@@ -76,11 +80,13 @@ export default function CreateAccountPage() {
               </motion.div>
             )}
 
-            <FormField label="Customer ID">
-              <Input type="number" required value={form.customer_id}
-                onChange={(e) => update("customer_id", e.target.value)}
-                placeholder="e.g. 1" />
-            </FormField>
+            {!isCustomer && (
+              <FormField label="Customer ID">
+                <Input type="number" required value={form.customer_id}
+                  onChange={(e) => update("customer_id", e.target.value)}
+                  placeholder="e.g. 1" />
+              </FormField>
+            )}
 
             <FormField label="Branch ID">
               <Input type="number" required value={form.branch_id}

@@ -46,16 +46,16 @@ export default function CustomersPage() {
           </div>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Link href="/customers/create"
-              className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
-              <Plus className="h-4 w-4" />
-              New Customer
+                className="inline-flex items-center gap-2 rounded-lg bg-navy-900 px-5 py-3 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-lg shadow-navy-900/10">
+                <Plus className="h-4 w-4" />
+                New Customer
             </Link>
           </motion.div>
         </div>
       </FadeIn>
 
       <FadeIn>
-        <div className="overflow-hidden rounded-lg border border-border bg-background">
+        <div className="table-responsive rounded-lg border border-border bg-background">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted">

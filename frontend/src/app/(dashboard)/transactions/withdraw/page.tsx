@@ -7,14 +7,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/store/auth";
+import { useCustomerAccounts } from "@/hooks/useApi";
 import Link from "next/link";
 import { ArrowLeft, Wallet, AlertCircle } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
-import { FormField, Input } from "@/components/ui/form-field";
+import { FormField, Input, Select } from "@/components/ui/form-field";
 
 const withdrawSchema = z.object({
-  account_id: z.coerce.number().int().positive("Required"),
-  amount: z.coerce.number().positive("Must be greater than 0"),
+  fromAccountId: z.number({ invalid_type_error: "Required" }).int().positive("Required"),
+  amount: z.number({ invalid_type_error: "Required" }).positive("Must be greater than 0"),
   description: z.string().optional(),
 });
 
@@ -24,12 +26,11 @@ export default function WithdrawPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const isCustomer = user?.type === "customer";
+  const { data: myAccounts } = useCustomerAccounts(user?.userId ?? 0);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<WithdrawFormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<WithdrawFormValues>({
     resolver: zodResolver(withdrawSchema),
   });
 
@@ -37,14 +38,10 @@ export default function WithdrawPage() {
     setError("");
     setLoading(true);
     try {
-      const { data: res } = await api.post("/transactions/withdraw", {
-        from_account_id: data.account_id,
-        amount: data.amount,
-        description: data.description || undefined,
-      });
+      const { data: res } = await api.post("/transactions/withdraw", data);
       router.push(`/transactions/receipt/${res.data.transaction_id}`);
     } catch {
-      setError("Withdrawal failed. Check balance and account ID.");
+      setError("Withdrawal failed. Check your balance.");
     } finally {
       setLoading(false);
     }
@@ -79,16 +76,27 @@ export default function WithdrawPage() {
               </motion.div>
             )}
 
-            <FormField label="Account ID" error={errors.account_id?.message}>
-              <Input type="number" {...register("account_id")} />
+            <FormField label="Account" error={errors.fromAccountId?.message}>
+              {isCustomer && myAccounts?.length ? (
+                <Select {...register("fromAccountId", { valueAsNumber: true })}>
+                  <option value="">Select your account</option>
+                  {myAccounts.map((a) => (
+                    <option key={a.account_id} value={a.account_id}>
+                      {a.account_type.toLowerCase().replace("_", " ")} — {a.account_number.slice(0, 12)}… (PKR {Number(a.balance).toLocaleString()})
+                    </option>
+                  ))}
+                </Select>
+              ) : (
+                <Input type="number" placeholder="Account ID" {...register("fromAccountId", { valueAsNumber: true })} />
+              )}
             </FormField>
 
             <FormField label="Amount (PKR)" error={errors.amount?.message}>
-              <Input type="number" step="0.01" {...register("amount")} placeholder="0.00" />
+              <Input type="number" step="0.01" placeholder="0.00" {...register("amount", { valueAsNumber: true })} />
             </FormField>
 
             <FormField label="Description (optional)" error={errors.description?.message}>
-              <Input type="text" {...register("description")} placeholder="Withdrawal reference" />
+              <Input type="text" placeholder="Withdrawal reference" {...register("description")} />
             </FormField>
 
             <motion.button type="submit" disabled={loading}

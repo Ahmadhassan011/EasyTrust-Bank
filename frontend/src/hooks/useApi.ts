@@ -114,7 +114,7 @@ export function useLoans() {
   return useQuery({
     queryKey: ["loans"],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<Loan[]>>("/loans/customer/0");
+      const { data } = await api.get<ApiResponse<Loan[]>>("/loans");
       return data.data;
     },
   });

@@ -175,7 +175,7 @@ export default function AccountDetailPage({
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}
-              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
+              className="rounded-lg touch-target border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
               Previous
             </motion.button>
             <span className="text-sm text-navy-400">
@@ -184,7 +184,7 @@ export default function AccountDetailPage({
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => setPage(page + 1)} disabled={(page + 1) * limit >= (history.total ?? 0)}
-              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
+              className="rounded-lg touch-target border border-border px-5 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-900 hover:text-white hover:border-navy-900 disabled:opacity-50 transition-all">
               Next
             </motion.button>
           </div>

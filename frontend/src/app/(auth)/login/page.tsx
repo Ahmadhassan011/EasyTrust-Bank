@@ -9,7 +9,18 @@ import { api } from "@/lib/api";
 import { easeOut } from "@/components/ui/animations";
 import { Input } from "@/components/ui/form-field";
 import { Landmark, LogIn, Eye, EyeOff, AlertCircle, X } from "lucide-react";
-import type { LoginResponse, ApiResponse } from "@/types";
+import type { LoginResponse, ApiResponse, User } from "@/types";
+
+function normalizeUser(data: LoginResponse): User {
+  return {
+    userId: data.user.customer_id ?? data.user.employee_id ?? 0,
+    type: data.role === "CUSTOMER" ? "customer" : "employee",
+    role: data.role,
+    firstName: data.user.first_name,
+    lastName: data.user.last_name,
+    email: data.user.email,
+  };
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,7 +49,7 @@ export default function LoginPage() {
         return;
       }
 
-      login(data.data.user, {
+      login(normalizeUser(data.data), {
         accessToken: data.data.accessToken,
         refreshToken: data.data.refreshToken,
       });
@@ -61,7 +72,7 @@ export default function LoginPage() {
         code: mfaCode,
       });
 
-      login(data.data.user, {
+      login(normalizeUser(data.data), {
         accessToken: data.data.accessToken,
         refreshToken: data.data.refreshToken,
       });
