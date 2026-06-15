@@ -27,7 +27,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "EasyTrust Bank",
-  description: "Secure, distributed online banking system",
+  description: "Simple. Secure. Seamless. — EasyTrust Bank brings enterprise-grade banking to everyone.",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },

@@ -23,6 +23,7 @@ export default function CustomerDetailPage({
   const deleteCustomer = useDeleteCustomer();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const { data: customer, isLoading } = useCustomer(customerId);
   const { data: accounts } = useCustomerAccounts(customerId);
@@ -30,11 +31,12 @@ export default function CustomerDetailPage({
 
   async function handleDelete() {
     setDeleting(true);
+    setDeleteError("");
     try {
       await deleteCustomer.mutateAsync(customerId);
       router.push("/customers");
     } catch {
-      setShowDeleteConfirm(false);
+      setDeleteError("Failed to delete customer. Please try again.");
       setDeleting(false);
     }
   }
@@ -217,9 +219,12 @@ export default function CustomerDetailPage({
             <p className="mt-2 text-sm text-navy-500">
               Are you sure you want to delete <strong>{customer?.first_name} {customer?.last_name}</strong>? This action cannot be undone and will also remove associated accounts and loans.
             </p>
+            {deleteError && (
+              <p className="mt-3 text-sm text-red-600">{deleteError}</p>
+            )}
             <div className="mt-6 flex justify-end gap-3">
               <button
-                onClick={() => { setShowDeleteConfirm(false); setDeleting(false); }}
+                onClick={() => { setShowDeleteConfirm(false); setDeleting(false); setDeleteError(""); }}
                 className="touch-target rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition-all"
               >
                 Cancel

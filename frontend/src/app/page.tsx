@@ -13,9 +13,9 @@ import {
 import { Footer } from "@/components/layout/Footer";
 
 const features = [
-  { icon: ShieldCheck, title: "Enterprise Security", desc: "End-to-end encryption, JWT authentication with MFA, and row-level locking on all financial transactions." },
-  { icon: Zap, title: "Lightning Fast", desc: "Sub-200ms balance queries, sub-500ms transfers, and 50+ transactions per second throughput." },
-  { icon: BarChart3, title: "Bank-Grade Reliability", desc: "ACID-compliant transactions, automated failover, and comprehensive audit trails for every operation." },
+  { icon: ShieldCheck, title: "Enterprise Security", desc: "JWT-based authentication with role-based access control, TOTP multi-factor authentication for employees, and bcrypt password hashing." },
+  { icon: Zap, title: "Real-Time Processing", desc: "Instant balance updates on every transaction, with ACID-compliant PostgreSQL guarantees and atomic transfers." },
+  { icon: BarChart3, title: "Full Audit Trail", desc: "Every employee action is logged. Immutable audit records with entity-level tracking for compliance and transparency." },
 ];
 
 const services = [
@@ -26,9 +26,9 @@ const services = [
 ];
 
 const securityItems = [
-  { icon: ShieldCheck, title: "Encrypted Transactions", desc: "256-bit AES encryption on every transaction. PCI-DSS compliant infrastructure with zero-knowledge architecture." },
-  { icon: Fingerprint, title: "Biometric Authentication", desc: "Fingerprint and face ID support for employee access. Multi-factor authentication enforced system-wide." },
-  { icon: Network, title: "Secure Network", desc: "Private encrypted channels between all 12 branches. Real-time intrusion detection and automated threat response." },
+  { icon: ShieldCheck, title: "Encrypted Transactions", desc: "All data encrypted in transit via TLS. Passwords hashed with bcrypt. JWT tokens signed with server-side keys." },
+  { icon: Fingerprint, title: "Multi-Factor Auth", desc: "TOTP-based multi-factor authentication for all employee accounts. Role-based access controls limit exposure." },
+  { icon: Network, title: "Secure Network", desc: "Role-based access with granular permissions. Full audit logging for every employee action across the platform." },
 ];
 
 function FadeUp({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -137,15 +137,14 @@ export default function LandingPage() {
 
 
                 <h1 className="text-4xl sm:text-5xl md:text-7xl leading-[1.1] md:leading-[1.05] text-white font-balance" style={{ fontFamily: "var(--font-display)", fontWeight: 470 }}>
-                  Banking across
-                  <br />
-                  <span className="text-navy-300">branches,</span> not silos.
+                  <span className="text-navy-300">Simple.</span>{" "}
+                  <span className="text-navy-100">Secure.</span>{" "}
+                  <span className="text-white">Seamless.</span>
                 </h1>
 
                 <p className="mt-6 max-w-lg text-base sm:text-lg text-navy-200 leading-relaxed">
-                  EasyTrust connects every branch into one real-time network.
-                  Accounts, transfers, loans — unified. One bank, twelve locations,
-                  zero boundaries.
+                  EasyTrust Bank combines modern security practices with straightforward banking.
+                  Real-time transfers, unified accounts, and branch-connected service.
                 </p>
 
                 <div className="mt-10 flex flex-wrap gap-4">

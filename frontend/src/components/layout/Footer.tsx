@@ -138,7 +138,7 @@ export function Footer() {
             <div className="mt-6 flex items-start gap-2 rounded-lg border border-navy-700 bg-navy-800/50 px-3 py-2.5">
               <Shield className="h-4 w-4 shrink-0 text-navy-400 mt-0.5" aria-hidden="true" />
               <p className="text-xs text-navy-400 leading-snug">
-                256-bit AES encryption. SBP licensed and regulated.
+                Data encrypted in transit. Role-based access controls enforced.
               </p>
             </div>
           </div>

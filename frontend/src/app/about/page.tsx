@@ -8,16 +8,16 @@ import { Landmark, ShieldCheck, Users, Building2, ArrowRight } from "lucide-reac
 import { Footer } from "@/components/layout/Footer";
 
 const milestones = [
-  { year: "2010", title: "Founded", desc: "EasyTrust Bank was established with a single branch and a vision to simplify banking." },
-  { year: "2015", title: "Digital Expansion", desc: "Launched online banking platform, connecting 5 branches across the region." },
-  { year: "2020", title: "Full Integration", desc: "All 12 branches unified under a single real-time distributed banking network." },
-  { year: "2024", title: "24,800+ Accounts", desc: "Serving thousands of customers with enterprise-grade security and reliability." },
+  { year: "2010", title: "Founded", desc: "EasyTrust Bank was established with a vision to simplify banking through modern technology." },
+  { year: "2015", title: "Digital Expansion", desc: "Launched online banking platform, connecting branches across the region." },
+  { year: "2020", title: "Full Integration", desc: "All branches unified under a single real-time distributed banking network." },
+  { year: "2024", title: "Growing Reach", desc: "Expanding customer base with modern security practices and reliable service." },
 ];
 
 const values = [
-  { icon: ShieldCheck, title: "Security First", desc: "End-to-end encryption, MFA, and ACID-compliant transactions." },
+  { icon: ShieldCheck, title: "Security First", desc: "Encryption in transit, MFA for employees, and ACID-compliant transactions." },
   { icon: Users, title: "Customer Focused", desc: "Every decision starts with what's best for our customers." },
-  { icon: Building2, title: "Connected Banking", desc: "One network, twelve branches, zero boundaries." },
+  { icon: Building2, title: "Connected Banking", desc: "Simple banking across every branch. Secure by design. Seamless by experience." },
 ];
 
 export default function AboutPage() {
@@ -30,11 +30,11 @@ export default function AboutPage() {
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: easeOut }} className="max-w-3xl">
                 <span className="serial-number text-navy-400">About</span>
                 <h1 className="mt-3 text-4xl sm:text-5xl text-white" style={{ fontFamily: "var(--font-display)", fontWeight: 480 }}>
-                  One bank, one network.
+                  Simple. Secure. Seamless.
                 </h1>
                 <p className="mt-4 text-lg text-navy-300 leading-relaxed max-w-2xl">
-                  EasyTrust Bank is a distributed banking platform connecting 12 branches into a single real-time network.
-                  We provide enterprise-grade banking services — accounts, transfers, loans — unified across every location.
+                  EasyTrust Bank brings modern banking to every customer.
+                  Accounts, transfers, and loans — unified across every branch.
                 </p>
               </motion.div>
             </div>
@@ -98,7 +98,7 @@ export default function AboutPage() {
               Ready to get started?
             </h2>
             <p className="mt-3 text-muted-foreground max-w-md mx-auto">
-              Open your EasyTrust account today and experience connected banking.
+              Open your EasyTrust account today for banking that's simple, secure, and seamless.
             </p>
             <Link href="/register"
               className="mt-8 inline-flex items-center gap-2 rounded-lg bg-navy-900 px-7 py-3 text-sm font-semibold text-white hover:bg-navy-800 transition-all shadow-xl shadow-navy-900/20 hover:scale-[1.02] active:scale-[0.98]">
