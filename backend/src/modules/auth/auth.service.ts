@@ -9,7 +9,9 @@ const REFRESH_TOKEN_EXPIRY = "7d";
 const MFA_TOKEN_EXPIRY = "2m";
 
 const getJwtSecret = (): string => {
-  return process.env.JWT_SECRET || "fallback-secret-do-not-use-in-production";
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET environment variable is required");
+  return secret;
 };
 
 const generateAccessToken = (payload: { userId: number; role: string; type: string }) => {

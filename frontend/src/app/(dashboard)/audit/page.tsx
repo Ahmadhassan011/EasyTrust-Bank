@@ -6,6 +6,7 @@ import { formatDateTime, getStatusColor } from "@/lib/utils";
 import { ScrollText, Search } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
 import { Select } from "@/components/ui/form-field";
+import { RoleGuard } from "@/components/layout/RoleGuard";
 
 const entityTypes = ["", "CUSTOMER", "ACCOUNT", "TRANSACTION", "LOAN", "LOAN_REPAYMENT", "INTERBANK_TRANSFER"];
 const actions = ["", "CREATE", "UPDATE", "DELETE", "APPROVE", "REJECT", "TRANSFER", "DEPOSIT", "WITHDRAWAL", "REPAY", "MFA_SETUP", "MFA_ENABLE", "MFA_DISABLE"];
@@ -27,6 +28,7 @@ export default function AuditPage() {
   }
 
   return (
+    <RoleGuard roles={["ADMIN", "AUDITOR"]}>
     <div className="space-y-6">
       <FadeIn>
         <div className="flex items-center gap-3">
@@ -100,5 +102,6 @@ export default function AuditPage() {
         </div>
       </FadeIn>
     </div>
+    </RoleGuard>
   );
 }

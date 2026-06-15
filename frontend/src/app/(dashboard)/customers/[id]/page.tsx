@@ -2,10 +2,12 @@
 
 import { use, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useCustomer, useCustomerAccounts, useCustomerLoans } from "@/hooks/useApi";
+import { useCustomer, useCustomerAccounts, useCustomerLoans, useDeleteCustomer } from "@/hooks/useApi";
+import { useAuthStore } from "@/store/auth";
 import { formatCurrency, formatDate, getStatusColor } from "@/lib/utils";
-import { ArrowLeft, Landmark, HandCoins, User, Mail, Phone, MapPin, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, Landmark, HandCoins, User, Mail, Phone, MapPin, ArrowUpRight, Trash2 } from "lucide-react";
 import { FadeIn, StaggerGrid, StaggerItem } from "@/components/ui/animations";
 import { CardSkeleton } from "@/components/ui/skeleton";
 
@@ -15,11 +17,27 @@ export default function CustomerDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const customerId = parseInt(id);
+  const user = useAuthStore((s) => s.user);
+  const deleteCustomer = useDeleteCustomer();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const { data: customer, isLoading } = useCustomer(customerId);
   const { data: accounts } = useCustomerAccounts(customerId);
   const { data: loans } = useCustomerLoans(customerId);
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      await deleteCustomer.mutateAsync(customerId);
+      router.push("/customers");
+    } catch {
+      setShowDeleteConfirm(false);
+      setDeleting(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -68,6 +86,15 @@ export default function CustomerDetailPage({
                 </span>
               </div>
             </div>
+            {user?.role === "ADMIN" && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="touch-target inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-all"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </button>
+            )}
           </div>
           <div className="divider-brand my-6" />
           <div className="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -179,6 +206,35 @@ export default function CustomerDetailPage({
           )}
         </StaggerGrid>
       </div>
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/40 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+          >
+            <h3 className="text-lg font-bold text-navy-900">Delete Customer</h3>
+            <p className="mt-2 text-sm text-navy-500">
+              Are you sure you want to delete <strong>{customer?.first_name} {customer?.last_name}</strong>? This action cannot be undone and will also remove associated accounts and loans.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => { setShowDeleteConfirm(false); setDeleting(false); }}
+                className="touch-target rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="touch-target rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-all"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { Users, Plus, ArrowUpRight } from "lucide-react";
 import { formatDate, getStatusColor } from "@/lib/utils";
 import { FadeIn, StaggerGrid, StaggerItem } from "@/components/ui/animations";
 import { CardSkeleton } from "@/components/ui/skeleton";
+import { RoleGuard } from "@/components/layout/RoleGuard";
 
 export default function CustomersPage() {
   const { data: customers, isLoading } = useCustomers();
@@ -36,6 +37,7 @@ export default function CustomersPage() {
   }
 
   return (
+    <RoleGuard roles={["MANAGER", "ADMIN"]}>
     <div className="space-y-6">
       <FadeIn>
         <div className="flex items-center justify-between">
@@ -111,6 +113,7 @@ export default function CustomersPage() {
         </div>
       </FadeIn>
     </div>
+    </RoleGuard>
   );
 }
 

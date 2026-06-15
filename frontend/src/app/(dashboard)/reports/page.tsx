@@ -9,6 +9,7 @@ import { BarChart3, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { ApiResponse, MonthlyReport } from "@/types";
 import { FadeIn, StaggerGrid, StaggerItem } from "@/components/ui/animations";
 import { Select } from "@/components/ui/form-field";
+import { RoleGuard } from "@/components/layout/RoleGuard";
 
 const months = [
   { value: 1, label: "January" }, { value: 2, label: "February" }, { value: 3, label: "March" },
@@ -46,6 +47,7 @@ export default function ReportsPage() {
   });
 
   return (
+    <RoleGuard roles={["MANAGER", "ADMIN"]}>
     <div className="space-y-6">
       <FadeIn>
         <div className="flex items-center gap-3">
@@ -145,6 +147,7 @@ export default function ReportsPage() {
         </FadeIn>
       )}
     </div>
+    </RoleGuard>
   );
 }
 

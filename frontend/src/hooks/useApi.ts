@@ -187,6 +187,19 @@ export function useUpdateCustomer() {
   });
 }
 
+export function useDeleteCustomer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await api.delete<ApiResponse<{ message: string }>>(`/customers/${id}`);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+    },
+  });
+}
+
 export function useInterbankTransfer(id: number) {
   return useQuery({
     queryKey: ["interbank", id],
