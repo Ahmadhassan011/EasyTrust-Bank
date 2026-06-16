@@ -21,7 +21,11 @@ export default function AuditPage() {
     offset: 0,
   });
 
-  const { data: logs, isLoading } = useAuditLogs(filters);
+  const { data, isLoading } = useAuditLogs({
+    ...filters,
+    entityType: filters.entityType.toLowerCase(),
+  });
+  const logs = data?.logs;
 
   function update(field: string, value: string) {
     setFilters((prev) => ({ ...prev, [field]: value, offset: 0 }));

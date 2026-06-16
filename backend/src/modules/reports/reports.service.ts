@@ -31,12 +31,30 @@ const getMonthlyTransactions = async (month?: number, year?: number) => {
     _count: { transaction_id: true },
   });
 
+  const by_type: Record<string, { count: number; total: number }> = {};
+  const by_status: Record<string, { count: number; total: number }> = {};
+  let total_amount = 0;
+
+  summary.forEach((item: any) => {
+    const amt = Number(item._sum.amount || 0);
+    const cnt = item._count.transaction_id;
+    total_amount += amt;
+
+    if (!by_type[item.type]) by_type[item.type] = { count: 0, total: 0 };
+    by_type[item.type].count += cnt;
+    by_type[item.type].total += amt;
+
+    if (!by_status[item.status]) by_status[item.status] = { count: 0, total: 0 };
+    by_status[item.status].count += cnt;
+    by_status[item.status].total += amt;
+  });
+
   return {
-    month: targetMonth,
-    year: targetYear,
-    totalTransactions: transactions.length,
-    summary,
-    transactions,
+    month: `${targetYear}-${targetMonth.toString().padStart(2, "0")}`,
+    total_transactions: transactions.length,
+    total_amount,
+    by_type,
+    by_status,
   };
 };
 

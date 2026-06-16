@@ -133,7 +133,7 @@ export function useAuditLogs(params?: {
   return useQuery({
     queryKey: ["audit", params],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<AuditLog[]>>("/audit", { params });
+      const { data } = await api.get<ApiResponse<{ logs: AuditLog[]; total: number }>>("/audit", { params });
       return data.data;
     },
   });
