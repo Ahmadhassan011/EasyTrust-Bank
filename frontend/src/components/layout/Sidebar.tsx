@@ -11,6 +11,8 @@ import {
   LayoutDashboard,
   Landmark,
   ArrowLeftRight,
+  TrendingUp,
+  TrendingDown,
   HandCoins,
   Users,
   UserCog,
@@ -30,17 +32,19 @@ interface NavItem {
 }
 
 const allNavItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard className="h-4 w-4" />, roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
-  { label: "Accounts", href: "/accounts", icon: <Landmark className="h-4 w-4" />, roles: ["CUSTOMER", "TELLER", "MANAGER", "ADMIN", "AUDITOR"] },
-  { label: "Transactions", href: "/transactions/transfer", icon: <ArrowLeftRight className="h-4 w-4" />, roles: ["CUSTOMER"] },
-  { label: "Loans", href: "/loans", icon: <HandCoins className="h-4 w-4" />, roles: ["CUSTOMER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
-  { label: "Customers", href: "/customers", icon: <Users className="h-4 w-4" />, roles: ["MANAGER", "ADMIN"] },
-  { label: "Employees", href: "/employees", icon: <UserCog className="h-4 w-4" />, roles: ["ADMIN"] },
-  { label: "Interbank", href: "/interbank/transfer", icon: <Building2 className="h-4 w-4" />, roles: ["TELLER", "MANAGER", "ADMIN"] },
-  { label: "Audit Log", href: "/audit", icon: <ScrollText className="h-4 w-4" />, roles: ["AUDITOR", "ADMIN"] },
-  { label: "Reports", href: "/reports", icon: <BarChart3 className="h-4 w-4" />, roles: ["MANAGER", "ADMIN"] },
-  { label: "Settings", href: "/settings", icon: <Settings className="h-4 w-4" />, roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
-  { label: "Support", href: "/support", icon: <HelpCircle className="h-4 w-4" />, roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
+  { label: "Dashboard",   href: "/dashboard",              icon: <LayoutDashboard className="h-4 w-4" />, roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
+  { label: "Accounts",    href: "/accounts",               icon: <Landmark className="h-4 w-4" />,        roles: ["CUSTOMER", "TELLER", "MANAGER", "ADMIN", "AUDITOR"] },
+  { label: "Deposit",     href: "/transactions/deposit",   icon: <TrendingUp className="h-4 w-4" />,      roles: ["CUSTOMER"] },
+  { label: "Withdraw",    href: "/transactions/withdraw",  icon: <TrendingDown className="h-4 w-4" />,    roles: ["CUSTOMER"] },
+  { label: "Transfer",    href: "/transactions/transfer",  icon: <ArrowLeftRight className="h-4 w-4" />,  roles: ["CUSTOMER"] },
+  { label: "Loans",       href: "/loans",                  icon: <HandCoins className="h-4 w-4" />,       roles: ["CUSTOMER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
+  { label: "Customers",   href: "/customers",              icon: <Users className="h-4 w-4" />,           roles: ["MANAGER", "ADMIN"] },
+  { label: "Employees",   href: "/employees",              icon: <UserCog className="h-4 w-4" />,         roles: ["ADMIN"] },
+  { label: "Interbank",   href: "/interbank/transfer",     icon: <Building2 className="h-4 w-4" />,       roles: ["TELLER", "MANAGER", "ADMIN"] },
+  { label: "Audit Log",   href: "/audit",                  icon: <ScrollText className="h-4 w-4" />,      roles: ["AUDITOR", "ADMIN"] },
+  { label: "Reports",     href: "/reports",                icon: <BarChart3 className="h-4 w-4" />,       roles: ["MANAGER", "ADMIN"] },
+  { label: "Settings",    href: "/settings",               icon: <Settings className="h-4 w-4" />,        roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
+  { label: "Support",     href: "/support",                icon: <HelpCircle className="h-4 w-4" />,      roles: ["CUSTOMER", "TELLER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
 ];
 
 const sidebarVariants = {
