@@ -19,7 +19,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import Link from "next/link";
-import dayjs from "dayjs";
+import { format, formatDistanceToNow } from "date-fns";
 
 export default function PendingChequesPage() {
   const user = useAuthStore((s) => s.user);
@@ -147,10 +147,10 @@ export default function PendingChequesPage() {
                         <Clock className="h-3 w-3" /> Submitted At
                       </p>
                       <p className="text-sm font-medium text-navy-900">
-                        {dayjs(req.requested_at).format("DD MMM YYYY, hh:mm A")}
+                        {format(new Date(req.requested_at), "dd MMM yyyy, hh:mm a")}
                       </p>
                       <p className="text-xs text-navy-500">
-                        {dayjs().to(dayjs(req.requested_at))}
+                        {formatDistanceToNow(new Date(req.requested_at), { addSuffix: true })}
                       </p>
                     </div>
                   </div>
