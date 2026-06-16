@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
-import { BarChart3, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { BarChart3, TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
 import type { ApiResponse, MonthlyReport } from "@/types";
 import { FadeIn, StaggerGrid, StaggerItem } from "@/components/ui/animations";
 import { Select } from "@/components/ui/form-field";
@@ -46,6 +46,39 @@ export default function ReportsPage() {
     },
   });
 
+  const handleDownloadCSV = () => {
+    if (!report) return;
+    
+    const lines = [];
+    lines.push(`Monthly Report,${report.month}`);
+    lines.push(`Total Transactions,${report.total_transactions}`);
+    lines.push(`Total Amount,${report.total_amount}`);
+    lines.push("");
+    
+    lines.push("--- BY TYPE ---");
+    lines.push("Type,Count,Total Amount");
+    Object.entries(report.by_type ?? {}).forEach(([type, stats]) => {
+      lines.push(`${type},${stats.count},${stats.total}`);
+    });
+    lines.push("");
+    
+    lines.push("--- BY STATUS ---");
+    lines.push("Status,Count,Total Amount");
+    Object.entries(report.by_status ?? {}).forEach(([status, stats]) => {
+      lines.push(`${status},${stats.count},${stats.total}`);
+    });
+
+    const csvContent = lines.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `EasyTrust_Report_${report.month}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <RoleGuard roles={["MANAGER", "ADMIN"]}>
     <div className="space-y-6">
@@ -62,13 +95,25 @@ export default function ReportsPage() {
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <div className="flex gap-3 card-easytrust p-4">
-          <Select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
-            {[2024, 2025, 2026].map((y) => <option key={y} value={y}>{y}</option>)}
-          </Select>
-          <Select value={month} onChange={(e) => setMonth(parseInt(e.target.value))}>
-            {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-          </Select>
+        <div className="flex flex-col sm:flex-row gap-3 justify-between sm:items-center card-easytrust p-4">
+          <div className="flex gap-3">
+            <Select value={year} onChange={(e) => setYear(parseInt(e.target.value))}>
+              {[2024, 2025, 2026].map((y) => <option key={y} value={y}>{y}</option>)}
+            </Select>
+            <Select value={month} onChange={(e) => setMonth(parseInt(e.target.value))}>
+              {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </Select>
+          </div>
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            disabled={!report || isLoading}
+            onClick={handleDownloadCSV}
+            className="flex items-center justify-center gap-2 rounded-xl bg-navy-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy-800 disabled:opacity-50 transition-all shadow-sm"
+          >
+            <Download className="h-4 w-4" /> Download CSV
+          </motion.button>
         </div>
       </FadeIn>
 
