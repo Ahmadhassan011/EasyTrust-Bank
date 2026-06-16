@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -223,12 +223,11 @@ export default function DepositPage() {
   const [chequeStep, setChequeStep] = useState<ChequeStep>("upload");
   const [frontPhoto, setFrontPhoto] = useState<File | null>(null);
   const [backPhoto, setBackPhoto] = useState<File | null>(null);
-  const [chequeAccountId, setChequeAccountId] = useState<number | null>(
-    activeAccounts[0]?.account_id ?? null
-  );
+  const [chequeAccountId, setChequeAccountId] = useState<number | null>(null);
   const [chequeNumber, setChequeNumber] = useState("");
   const [chequeBankName, setChequeBankName] = useState("");
   const [chequeAmount, setChequeAmount] = useState("");
+  const [detailsError, setDetailsError] = useState("");
 
   // ── Card state ────────────────────────────────────────────
   const [cardStep, setCardStep] = useState<CardStep>("card-info");
@@ -237,10 +236,19 @@ export default function DepositPage() {
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvv, setCardCvv] = useState("");
   const [showCvv, setShowCvv] = useState(false);
-  const [cardAccountId, setCardAccountId] = useState<number | null>(
-    activeAccounts[0]?.account_id ?? null
-  );
+  const [cardAccountId, setCardAccountId] = useState<number | null>(null);
   const [cardAmount, setCardAmount] = useState("");
+
+  // ── Auto-select first account once data loads ─────────────
+  // useState runs before the async fetch, so we need useEffect
+  useEffect(() => {
+    if (activeAccounts.length > 0) {
+      if (!chequeAccountId) setChequeAccountId(activeAccounts[0].account_id);
+      if (!cardAccountId)   setCardAccountId(activeAccounts[0].account_id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAccounts.length]);
+
 
   // ── Submit helpers ────────────────────────────────────────
   async function submitChequeDeposit() {
@@ -552,17 +560,42 @@ export default function DepositPage() {
                   </div>
                 </div>
 
+                {detailsError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                  >
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>{detailsError}</span>
+                  </motion.div>
+                )}
+
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  disabled={!chequeAccountId || !chequeNumber || !chequeBankName || !chequeAmount}
-                  onClick={() => setChequeStep("review")}
-                  className="w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-600/20"
+                  disabled={loading}
+                  onClick={() => {
+                    // Collect what's missing and tell the user clearly
+                    const missing: string[] = [];
+                    if (!chequeAccountId) missing.push("select a deposit account");
+                    if (!chequeNumber.trim()) missing.push("enter the cheque number");
+                    if (!chequeBankName.trim()) missing.push("enter the issuing bank name");
+                    if (!chequeAmount || parseFloat(chequeAmount) <= 0) missing.push("enter a valid amount");
+                    if (missing.length > 0) {
+                      setDetailsError("Please " + missing.join(", then ") + ".");
+                      return;
+                    }
+                    setDetailsError("");
+                    setChequeStep("review");
+                  }}
+                  className="w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white hover:bg-violet-500 disabled:opacity-50 transition-all shadow-lg shadow-violet-600/20"
                 >
                   Review Deposit
                 </motion.button>
               </motion.div>
             )}
+
 
             {/* Step 3: Review & Submit */}
             {chequeStep === "review" && (
