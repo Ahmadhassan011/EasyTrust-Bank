@@ -10,7 +10,7 @@ import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { useCustomerAccounts } from "@/hooks/useApi";
 import Link from "next/link";
-import { ArrowLeft, ArrowLeftRight, AlertCircle } from "lucide-react";
+import { ArrowLeft, ArrowLeftRight, AlertCircle, Shield } from "lucide-react";
 import { FadeIn } from "@/components/ui/animations";
 import { FormField, Input, Select } from "@/components/ui/form-field";
 
@@ -30,6 +30,38 @@ export default function TransferPage() {
   const user = useAuthStore((s) => s.user);
   const isCustomer = user?.type === "customer";
   const { data: myAccounts } = useCustomerAccounts(user?.userId ?? 0);
+
+  // Role guard — only customers can initiate transfers
+  if (user && user.type !== "customer") {
+    return (
+      <div className="mx-auto max-w-lg space-y-6">
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-navy-400 hover:text-navy-700 transition-all">
+          <ArrowLeft className="h-4 w-4" /> Dashboard
+        </Link>
+        <FadeIn>
+          <div className="card-easytrust p-10 flex flex-col items-center text-center space-y-5">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+              <Shield className="h-8 w-8 text-red-500" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-navy-900">Access Restricted</h1>
+              <p className="mt-2 text-sm text-navy-500 max-w-xs">
+                Fund transfers can only be initiated by customers. As a <span className="font-semibold text-navy-700">{user.role}</span>, you do not have permission to transfer funds.
+              </p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => router.push("/dashboard")}
+              className="rounded-xl bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-700 transition-all"
+            >
+              Go to Dashboard
+            </motion.button>
+          </div>
+        </FadeIn>
+      </div>
+    );
+  }
 
   const { register, handleSubmit, formState: { errors } } = useForm<TransferFormValues>({
     resolver: zodResolver(transferSchema),

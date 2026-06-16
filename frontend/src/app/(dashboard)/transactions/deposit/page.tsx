@@ -181,6 +181,41 @@ export default function DepositPage() {
   const { data: myAccounts } = useCustomerAccounts(user?.userId ?? 0);
   const activeAccounts = (myAccounts ?? []).filter((a) => a.status === "ACTIVE");
 
+  // ── Role guard: only customers can deposit ────────────────
+  if (user && user.type !== "customer") {
+    return (
+      <div className="mx-auto max-w-lg space-y-6">
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-navy-400 hover:text-navy-700 transition-all">
+          <ArrowLeft className="h-4 w-4" /> Dashboard
+        </Link>
+        <FadeIn>
+          <div className="card-easytrust p-10 flex flex-col items-center text-center space-y-5">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+              <Shield className="h-8 w-8 text-red-500" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-navy-900">Access Restricted</h1>
+              <p className="mt-2 text-sm text-navy-500 max-w-xs">
+                Deposits can only be initiated by customers. As a <span className="font-semibold text-navy-700">{user.role}</span>, you do not have permission to perform deposits.
+              </p>
+              <p className="mt-3 text-xs text-navy-400">
+                To deposit funds on behalf of a customer, use the Teller deposit workflow from the Accounts section.
+              </p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => router.push("/dashboard")}
+              className="rounded-xl bg-navy-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-navy-700 transition-all"
+            >
+              Go to Dashboard
+            </motion.button>
+          </div>
+        </FadeIn>
+      </div>
+    );
+  }
+
   const [method, setMethod] = useState<DepositMethod>(null);
   const [loading, setLoading] = useState(false);
 
