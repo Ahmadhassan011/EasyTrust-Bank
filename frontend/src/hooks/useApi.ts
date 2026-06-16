@@ -274,3 +274,41 @@ export function useDeleteEmployee() {
     },
   });
 }
+
+export function useChequeRequests(status?: string) {
+  return useQuery({
+    queryKey: ["cheque-deposits", status],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<any[]>>("/cheque-deposits", {
+        params: { status },
+      });
+      return data.data;
+    },
+  });
+}
+
+export function useApproveCheque() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await api.patch<ApiResponse<any>>(`/cheque-deposits/${id}/approve`);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cheque-deposits"] });
+    },
+  });
+}
+
+export function useRejectCheque() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: number; reason?: string }) => {
+      const { data } = await api.patch<ApiResponse<any>>(`/cheque-deposits/${id}/reject`, { reason });
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cheque-deposits"] });
+    },
+  });
+}

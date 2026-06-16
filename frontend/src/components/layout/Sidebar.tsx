@@ -22,6 +22,7 @@ import {
   Settings,
   HelpCircle,
   LogOut,
+  CheckCircle,
 } from "lucide-react";
 
 interface NavItem {
@@ -37,6 +38,7 @@ const allNavItems: NavItem[] = [
   { label: "Deposit",     href: "/transactions/deposit",   icon: <TrendingUp className="h-4 w-4" />,      roles: ["CUSTOMER"] },
   { label: "Withdraw",    href: "/transactions/withdraw",  icon: <TrendingDown className="h-4 w-4" />,    roles: ["CUSTOMER"] },
   { label: "Transfer",    href: "/transactions/transfer",  icon: <ArrowLeftRight className="h-4 w-4" />,  roles: ["CUSTOMER"] },
+  { label: "Pending Cheques", href: "/transactions/pending-cheques", icon: <CheckCircle className="h-4 w-4" />, roles: ["TELLER", "MANAGER", "ADMIN"] },
   { label: "Loans",       href: "/loans",                  icon: <HandCoins className="h-4 w-4" />,       roles: ["CUSTOMER", "LOAN_OFFICER", "MANAGER", "ADMIN", "AUDITOR"] },
   { label: "Customers",   href: "/customers",              icon: <Users className="h-4 w-4" />,           roles: ["MANAGER", "ADMIN"] },
   { label: "Employees",   href: "/employees",              icon: <UserCog className="h-4 w-4" />,         roles: ["ADMIN"] },

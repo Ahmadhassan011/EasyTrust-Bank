@@ -78,6 +78,7 @@ model Employee {
   branch        Branch    @relation(fields: [branch_id], references: [branch_id])
   approvedLoans Loan[]    @relation("LoanApprovedBy")
   rejectedLoans Loan[]    @relation("LoanRejectedBy")
+  reviewedChequeDeposits ChequeDepositRequest[] @relation("ChequeReviewer")
   auditLogs     AuditLog[]
 
   @@map("employee")
@@ -100,6 +101,7 @@ model Account {
   cards           Card[]
   sentTransactions      Transaction[] @relation("FromAccount")
   receivedTransactions  Transaction[] @relation("ToAccount")
+  chequeDepositRequests ChequeDepositRequest[]
 
   @@index([customer_id])
   @@index([branch_id])
@@ -165,6 +167,7 @@ model Transaction {
   toAccount         Account?  @relation("ToAccount", fields: [to_account_id], references: [account_id])
   interbankTransfer InterbankTransfer?
   loanRepayment     LoanRepayment?
+  chequeDepositRequest ChequeDepositRequest?
 
   @@index([from_account_id])
   @@index([to_account_id])
@@ -222,4 +225,27 @@ model AuditLog {
   @@index([employee_id])
   @@index([entity_type, entity_id])
   @@map("audit_log")
+}
+
+model ChequeDepositRequest {
+  request_id       Int       @id @default(autoincrement())
+  account_id       Int
+  amount           Decimal   @db.Decimal(15, 2)
+  cheque_number    String
+  bank_name        String
+  front_photo_url  String?
+  back_photo_url   String?
+  status           String    @default("PENDING")   // PENDING | APPROVED | REJECTED
+  transaction_id   Int?      @unique
+  reviewed_by      Int?
+  rejection_reason String?
+  requested_at     DateTime  @default(now())
+  reviewed_at      DateTime?
+  account          Account   @relation(fields: [account_id], references: [account_id])
+  transaction      Transaction? @relation(fields: [transaction_id], references: [transaction_id])
+  reviewer         Employee?   @relation("ChequeReviewer", fields: [reviewed_by], references: [employee_id])
+
+  @@index([account_id])
+  @@index([status])
+  @@map("cheque_deposit_request")
 }

@@ -43,6 +43,7 @@ const reportsRoutes = require('./modules/reports/reports.routes');
 const coordinatorRoutes = require('./modules/coordinator/coordinator.routes');
 const cardRoutes = require('./modules/card/card.routes');
 const employeeRoutes = require('./modules/employee/employee.routes');
+const chequeRoutes = require('./modules/cheque/cheque.routes');
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/customers', authenticate, customerRoutes);
@@ -55,6 +56,7 @@ app.use('/api/v1/reports', authenticate, reportsRoutes);
 app.use('/api/v1/coordinator', authenticate, coordinatorRoutes);
 app.use('/api/v1/cards', authenticate, cardRoutes);
 app.use('/api/v1/employees', authenticate, employeeRoutes);
+app.use('/api/v1/cheque-deposits', authenticate, chequeRoutes);
 
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

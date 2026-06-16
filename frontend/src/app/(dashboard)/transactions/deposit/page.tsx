@@ -255,15 +255,17 @@ export default function DepositPage() {
     if (!chequeAccountId || !chequeAmount) return;
     setLoading(true);
     try {
-      const { data: res } = await api.post("/transactions/deposit", {
-        toAccountId: chequeAccountId,
+      // Submit to verification queue — money NOT credited yet
+      await api.post("/cheque-deposits", {
+        account_id: chequeAccountId,
         amount: parseFloat(chequeAmount),
-        description: `Digital Cheque Deposit — Cheque #${chequeNumber} (${chequeBankName})`,
+        cheque_number: chequeNumber,
+        bank_name: chequeBankName,
       });
-      toast.success("Cheque deposit submitted for processing!");
-      router.push(`/transactions/receipt/${res.data.transaction_id}`);
+      // Show pending confirmation — do NOT redirect to receipt
+      setChequeStep("pending" as any);
     } catch (err: any) {
-      toast.error(err.response?.data?.error?.message ?? "Deposit failed. Please try again.");
+      toast.error(err.response?.data?.error?.message ?? "Submission failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -693,6 +695,65 @@ export default function DepositPage() {
                 </motion.button>
               </motion.div>
             )}
+
+            {/* Step 4: Pending Verification */}
+            {chequeStep === ("pending" as any) && (
+              <motion.div
+                key="pending"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="card-easytrust p-10 flex flex-col items-center text-center space-y-5"
+              >
+                <div className="relative flex h-20 w-20 items-center justify-center">
+                  <div className="absolute inset-0 rounded-full bg-amber-100 animate-ping opacity-40" />
+                  <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-amber-100">
+                    <Clock className="h-10 w-10 text-amber-600" />
+                  </div>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-navy-900">Cheque Submitted!</h2>
+                  <p className="mt-2 text-sm text-navy-500 max-w-xs mx-auto">
+                    Your cheque of{" "}
+                    <span className="font-semibold text-navy-800">
+                      PKR {parseFloat(chequeAmount || "0").toLocaleString()}
+                    </span>{" "}
+                    is now <span className="font-semibold text-amber-600">pending Manager verification</span>.
+                    Funds will only be credited after approval.
+                  </p>
+                </div>
+
+                <div className="w-full rounded-xl bg-amber-50 border border-amber-200 p-4 text-left space-y-2">
+                  <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide">What happens next</p>
+                  {[
+                    "A Teller or Manager will review your cheque photos",
+                    `Once approved, PKR ${parseFloat(chequeAmount || "0").toLocaleString()} will be credited to your account`,
+                    "You will see the transaction in your account history",
+                  ].map((text, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-200 text-xs font-bold text-amber-800">{i + 1}</span>
+                      <p className="text-xs text-amber-700">{text}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-3 w-full pt-1">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                    onClick={() => router.push("/dashboard")}
+                    className="flex-1 rounded-xl bg-navy-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-navy-700 transition-all"
+                  >
+                    Go to Dashboard
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                    onClick={() => router.push("/accounts")}
+                    className="flex-1 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy-700 hover:bg-navy-50 transition-all"
+                  >
+                    View Accounts
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </FadeIn>
       </div>
@@ -700,6 +761,7 @@ export default function DepositPage() {
   }
 
   // ── DEBIT CARD FLOW ───────────────────────────────────────
+
   if (method === "card") {
     const rawCardDigits = cardNumber.replace(/\D/g, "");
     const cardNetwork =
